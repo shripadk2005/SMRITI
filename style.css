@@ -1,0 +1,626 @@
+/* ==========================================================================
+   SMRITI – AI Cognitive & Dementia Care Platform
+   Professional Clinical & Accessible Stylesheet
+   ========================================================================== */
+
+:root {
+  /* Modern Clinical Teal & Slate Palette */
+  --primary-color: #0f766e;        /* Deep Medical Teal (Calming, Authoritative) */
+  --primary-hover: #115e59;        /* Teal 800 */
+  --primary-light: #0d9488;        /* Teal 600 - Interactive Highlights */
+  --primary-subtle: #f0fdfa;       /* Teal 50 - Gentle Tint Background */
+  --secondary-color: #0284c7;      /* Trust Azure / Sky 600 */
+  --secondary-hover: #0369a1;      /* Sky 700 */
+  --secondary-subtle: #f0f9ff;     /* Sky 50 */
+  --accent-color: #f59e0b;         /* Warm Amber 500 */
+  --accent-soft: #fef3c7;          /* Amber 100 */
+  --bg-color: #f8fafc;             /* Slate 50 - Crisp, Clinical Neutral Canvas */
+  --card-bg: #ffffff;              /* Pure White */
+  --text-main: #0f172a;            /* Slate 900 - High Contrast Sharp Typography */
+  --text-secondary: #334155;       /* Slate 700 */
+  --text-muted: #64748b;           /* Slate 500 */
+  --border-color: #e2e8f0;         /* Slate 200 */
+  --border-subtle: #f1f5f9;        /* Slate 100 */
+  --success-color: #10b981;        /* Emerald 500 */
+  --warning-color: #f59e0b;        /* Amber 500 */
+  --danger-color: #ef4444;         /* Rose 500 */
+  --sos-color: #dc2626;            /* Emergency Crimson Red */
+  --sos-glow: rgba(220, 38, 38, 0.4);
+  --border-radius: 18px;
+  --btn-radius: 14px;
+  --font-base-scale: 1rem;
+}
+
+/* Accessibility: Font Size Scaling */
+html.font-sm { font-size: 14px; }
+html.font-normal { font-size: 17px; }
+html.font-lg { font-size: 20px; }
+html.font-xl { font-size: 24px; }
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST THEME (Elderly Accessibility WCAG AAA)
+   ========================================================================== */
+body.theme-high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+body.theme-high-contrast .card,
+body.theme-high-contrast .navbar,
+body.theme-high-contrast .modal-content,
+body.theme-high-contrast .list-group-item,
+body.theme-high-contrast .dropdown-menu,
+body.theme-high-contrast .memory-vault-card {
+  background-color: #121212 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+body.theme-high-contrast a,
+body.theme-high-contrast .nav-link,
+body.theme-high-contrast .text-muted,
+body.theme-high-contrast h1,
+body.theme-high-contrast h2,
+body.theme-high-contrast h3,
+body.theme-high-contrast h4,
+body.theme-high-contrast h5,
+body.theme-high-contrast h6 {
+  color: #ffff00 !important;
+}
+
+body.theme-high-contrast .btn-primary,
+body.theme-high-contrast .btn-success,
+body.theme-high-contrast .btn-primary-mc,
+body.theme-high-contrast .btn-outline-primary {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffff00 !important;
+  font-weight: bold !important;
+}
+
+body.theme-high-contrast .btn-outline-secondary,
+body.theme-high-contrast .btn-light {
+  background-color: #000000 !important;
+  color: #00ffff !important;
+  border-color: #00ffff !important;
+}
+
+body.theme-high-contrast .form-control,
+body.theme-high-contrast .form-select {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+body.theme-high-contrast .badge {
+  border: 1px solid #ffffff !important;
+}
+
+/* ==========================================================================
+   HEADER, NAVBAR & BRANDING
+   ========================================================================== */
+.navbar-mindcare {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  padding: 0.85rem 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.navbar-brand {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--primary-color) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.brand-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+}
+
+.brand-badge {
+  background: var(--primary-subtle);
+  color: var(--primary-color);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--text-secondary) !important;
+  padding: 0.55rem 0.95rem !important;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-color) !important;
+  background-color: var(--primary-subtle);
+}
+
+/* Accessibility Bar (Persistent Utility Strip) */
+.accessibility-bar {
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.45rem 1rem;
+  font-size: 0.92rem;
+}
+
+.access-btn {
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.access-btn:hover, .access-btn.active {
+  background: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+}
+
+/* ==========================================================================
+   EMERGENCY SOS SYSTEM (Pulsating Button & Modal)
+   ========================================================================== */
+.btn-emergency-sos {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff !important;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 30px;
+  border: none;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  animation: sos-glow-pulse 2s infinite;
+}
+
+.btn-emergency-sos:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+  background: #b91c1c;
+}
+
+.btn-emergency-sos:active {
+  transform: scale(0.96);
+}
+
+@keyframes sos-glow-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.sos-modal-header {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #ffffff;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+/* ==========================================================================
+   ACTIVE NOTIFICATIONS & MEDICINE COUNTDOWN
+   ========================================================================== */
+.active-countdown-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdfa 100%);
+  border: 1px solid #bfdbfe;
+  border-left: 5px solid var(--secondary-color);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
+}
+
+.active-reminder-toast {
+  position: fixed;
+  top: 85px;
+  right: 25px;
+  z-index: 1080;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid var(--primary-light);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  animation: slideInRight 0.35s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   CARDS & TOUCH TARGETS (Elderly-Friendly & Elevated)
+   ========================================================================== */
+.card-mindcare {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 6px 16px -2px rgba(15, 23, 42, 0.04);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-mindcare:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+}
+
+.icon-bubble {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+  margin: 0 auto;
+}
+
+.icon-bubble-teal { background: #ccfbf1; color: var(--primary-color); }
+.icon-bubble-sky { background: #e0f2fe; color: var(--secondary-color); }
+.icon-bubble-amber { background: #fef3c7; color: var(--accent-color); }
+.icon-bubble-emerald { background: #d1fae5; color: var(--success-color); }
+
+.btn-elderly {
+  padding: 0.85rem 1.6rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-radius: var(--btn-radius);
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  touch-action: manipulation;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.btn-elderly:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+.btn-elderly:active {
+  transform: scale(0.98);
+}
+
+.btn-primary-mc {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  border: 1px solid var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+}
+
+.btn-primary-mc:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(15, 118, 110, 0.35);
+}
+
+/* ==========================================================================
+   PERSONAL MEMORY VAULT (Family, Addresses, Shows)
+   ========================================================================== */
+.memory-vault-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  transition: all 0.25s ease;
+}
+
+.memory-vault-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+  border-color: var(--primary-light);
+}
+
+.memory-avatar-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.memory-category-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   VOICE ASSISTANT FLOATING BUTTON
+   ========================================================================== */
+.floating-voice-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f766e, #0284c7);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 6px 22px rgba(15, 118, 110, 0.4);
+  font-size: 1.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1050;
+  transition: all 0.25s ease;
+}
+
+.floating-voice-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 28px rgba(15, 118, 110, 0.55);
+}
+
+.voice-listening-pulse {
+  animation: pulse-ring 1.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  background: #dc2626 !important;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  70% { box-shadow: 0 0 0 22px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.voice-status-pill {
+  position: fixed;
+  bottom: 105px;
+  right: 25px;
+  background: #ffffff;
+  border: 2px solid var(--primary-color);
+  border-radius: 30px;
+  padding: 0.6rem 1.2rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  font-weight: 700;
+  display: none;
+  z-index: 1050;
+  max-width: 320px;
+}
+
+/* ==========================================================================
+   COGNITIVE GAMES STYLING
+   ========================================================================== */
+/* Memory Matching Grid */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 680px;
+  margin: 0 auto;
+  perspective: 1000px;
+}
+
+@media (max-width: 576px) {
+  .memory-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
+.memory-card {
+  min-height: 120px;
+  aspect-ratio: 1;
+  position: relative;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.memory-card.flipped,
+.memory-card.matched {
+  transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+  opacity: 0.95;
+  cursor: default;
+}
+
+.card-front, .card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transition: opacity 0.2s ease;
+}
+
+.card-front {
+  background: linear-gradient(145deg, #0f766e 0%, #1e293b 100%);
+  color: #ffffff;
+  font-size: 2.2rem;
+  border: 3px solid #ffffff;
+  z-index: 2;
+}
+
+.card-back {
+  background: #ffffff;
+  color: var(--text-main);
+  transform: rotateY(180deg);
+  border: 3px solid var(--primary-light);
+  padding: 8px;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Fail-safe visibility transition for browsers with 3D transform quirks */
+.memory-card.flipped .card-front,
+.memory-card.matched .card-front {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.memory-card.flipped .card-back,
+.memory-card.matched .card-back {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 3 !important;
+}
+
+.card-back i {
+  font-size: 2.6rem;
+  color: var(--primary-color);
+  margin-bottom: 6px;
+}
+
+.card-back span {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* Multiple-choice option buttons (Pattern, Family Recall, Object Recall, Attention) */
+.game-option-btn {
+  background: #ffffff;
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-height: 85px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.game-option-btn:hover {
+  border-color: var(--primary-light);
+  background: var(--primary-subtle);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.12);
+}
+
+.game-option-btn.selected-correct {
+  border-color: var(--success-color) !important;
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+}
+
+.game-option-btn.selected-wrong {
+  border-color: var(--danger-color) !important;
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Timer progress bar */
+.timer-bar-container {
+  width: 100%;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+
+.timer-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+  width: 100%;
+  transition: width 0.1s linear;
+}
+
+/* ==========================================================================
+   OFFLINE PWA STATUS BANNER & FOOTER
+   ========================================================================== */
+#offline-banner {
+  display: none;
+  background: #fff3cd;
+  color: #664d03;
+  border-bottom: 2px solid #ffecb5;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1060;
+}
+
+.medical-disclaimer-box {
+  background-color: #f1f5f9;
+  border-left: 5px solid var(--secondary-color);
+  padding: 1rem 1.35rem;
+  border-radius: 12px;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.footer-mindcare {
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  padding: 2.2rem 0;
+  margin-top: auto;
+  color: var(--text-muted);
+}

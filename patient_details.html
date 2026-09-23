@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Details: {{ user.name }} – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <a href="{{ url_for('caregiver.dashboard_page') }}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="fa-solid fa-arrow-left me-1"></i> Caregiver Hub
+      </a>
+      <h1 class="display-6 fw-bold mb-1">📋 Patient File: {{ user.name }}</h1>
+      <p class="text-muted mb-0">Full telemetry, gameplay logs, and caregiver care plans.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-elderly btn-light border btn-read-aloud" data-read-target=".container p">
+        <i class="fa-solid fa-volume-high text-primary me-2"></i> Read
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="card card-mindcare p-4 mb-4 shadow-sm">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <small class="text-muted d-block">Age & Gender</small>
+        <strong class="fs-5">{{ user.age or 'N/A' }} Years, {{ user.gender or 'N/A' }}</strong>
+      </div>
+      <div class="col-md-3">
+        <small class="text-muted d-block">Region / State</small>
+        <strong class="fs-5">{{ patient.region }}</strong>
+      </div>
+      <div class="col-md-3">
+        <small class="text-muted d-block">Phone Number</small>
+        <strong class="fs-5">{{ user.phone or 'N/A' }}</strong>
+      </div>
+      <div class="col-md-3">
+        <small class="text-muted d-block">Emergency Contact</small>
+        <strong class="fs-5 text-danger">{{ patient.emergency_contact or 'N/A' }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gameplay Telemetry History Table -->
+  <div class="card card-mindcare p-4 mb-4 shadow-sm">
+    <h3 class="fw-bold fs-4 mb-3">
+      <i class="fa-solid fa-clock-rotate-left text-success me-2"></i>
+      Recent Cognitive Gameplay Telemetry
+    </h3>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Activity</th>
+            <th>Difficulty</th>
+            <th>Score</th>
+            <th>Accuracy</th>
+            <th>Time</th>
+            <th>Played At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+            <tr>
+              <td>
+                <strong>{{ r.game.name if r.game else 'Cognitive Game' }}</strong>
+                <small class="text-muted d-block">{{ r.game.category if r.game else '' }}</small>
+              </td>
+              <td>
+                <span class="badge {% if r.difficulty == 'EASY' %}bg-success{% elif r.difficulty == 'MEDIUM' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                  {{ r.difficulty }}
+                </span>
+              </td>
+              <td><strong class="text-success">{{ r.score }}/100</strong></td>
+              <td>{{ r.accuracy }}%</td>
+              <td>{{ r.completion_time }}s</td>
+              <td><small class="text-muted">{{ r.played_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-center text-muted py-3">No game telemetry recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Reminders & Appointments Side by Side -->
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card card-mindcare p-4 h-100 shadow-sm">
+        <h3 class="fw-bold fs-4 mb-3"><i class="fa-solid fa-bell text-warning me-2"></i> Active Reminders</h3>
+        <ul class="list-group list-group-flush">
+          {% for r in reminders %}
+            <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+              <div>
+                <strong>{{ r.title }}</strong>
+                <small class="text-muted d-block">{{ r.reminder_time }} &bull; {{ r.type.title() }}</small>
+              </div>
+              <span class="badge {% if r.status == 'completed' %}bg-success{% elif r.status == 'missed' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                {{ r.status }}
+              </span>
+            </li>
+          {% else %}
+            <li class="list-group-item text-muted">No reminders found.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-mindcare p-4 h-100 shadow-sm">
+        <h3 class="fw-bold fs-4 mb-3"><i class="fa-solid fa-calendar-check text-primary me-2"></i> Doctor Visits</h3>
+        <ul class="list-group list-group-flush">
+          {% for a in appointments %}
+            <li class="list-group-item py-2 px-0">
+              <strong>{{ a.doctor }}</strong>
+              <small class="text-muted d-block">{{ a.hospital }} &bull; {{ a.appointment_date }} at {{ a.appointment_time }}</small>
+            </li>
+          {% else %}
+            <li class="list-group-item text-muted">No appointments scheduled.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

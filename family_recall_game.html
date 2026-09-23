@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Who Is This? Family & Life Recall – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <a href="{{ url_for('games.games_hub_page') }}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="fa-solid fa-arrow-left me-1"></i> All Games
+      </a>
+      <h1 class="display-6 fw-bold mb-1">👨‍👩‍👧 Who Is This? Family & Life Recall</h1>
+      <p class="fs-5 text-muted mb-0">Personalized cognitive game created from your own family photos, home memories, and favorite shows.</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{{ url_for('patient.memory_vault_page') }}" class="btn btn-elderly btn-outline-teal">
+        <i class="fa-solid fa-folder-plus me-2"></i> Update Memory Vault
+      </a>
+      <button class="btn btn-elderly btn-light border btn-read-aloud" data-read-target=".container p">
+        <i class="fa-solid fa-volume-high text-primary me-2"></i> Read
+      </button>
+      <button class="btn btn-elderly btn-outline-success" onclick="if(window.currentGame) window.currentGame.init();">
+        <i class="fa-solid fa-rotate-right me-2"></i> Restart
+      </button>
+    </div>
+  </div>
+
+  <div id="family-recall-container" class="card card-mindcare p-4 mb-4 shadow-sm">
+    <!-- Dynamically rendered by FamilyRecallGame in games.js -->
+    <div class="text-center py-5">
+      <div class="spinner-border text-teal mb-3" role="status"></div>
+      <h4 class="fw-bold text-dark">Loading your personal memory questions...</h4>
+      <p class="text-muted">Fetching your loving family members and favorite memories.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function startFamilyRecallGame() {
+  if (typeof FamilyRecallGame !== 'undefined') {
+    window.currentGame = new FamilyRecallGame('family-recall-container', '{{ initial_difficulty or "EASY" }}');
+  } else {
+    setTimeout(startFamilyRecallGame, 50);
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startFamilyRecallGame);
+} else {
+  startFamilyRecallGame();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}System Notice – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="py-5">
+    <div class="display-1 text-danger mb-3"><i class="fa-solid fa-heart-crack"></i></div>
+    <h1 class="display-4 fw-bold">Temporary System Notice (500)</h1>
+    <p class="fs-4 text-secondary mb-4">
+      Something unexpected happened, but your personal progress and reminders are safe.
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{{ url_for('public_index') }}" class="btn btn-elderly btn-primary-mc">
+        <i class="fa-solid fa-house me-2"></i> Return to Home
+      </a>
+      <button class="btn btn-elderly btn-outline-secondary" onclick="location.reload()">
+        <i class="fa-solid fa-rotate-right me-2"></i> Try Again
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

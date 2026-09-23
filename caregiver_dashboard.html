@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Caregiver Monitoring Hub – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Active Critical SOS Alert Banner (if any) -->
+  {% for alt in alerts if alt.alert_type == 'emergency_sos' and alt.status == 'unread' %}
+    <div class="alert alert-danger border-danger shadow-lg p-3 mb-4 rounded-4" role="alert" style="animation: pulse-ring 1.5s infinite;">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="fs-1 text-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div>
+            <h4 class="fw-bold mb-0 text-danger">🚨 CRITICAL EMERGENCY SOS ACTIVATED BY PATIENT!</h4>
+            <p class="mb-0 text-dark fw-semibold">{{ alt.message }}</p>
+            <small class="text-muted">{{ alt.created_at.strftime('%b %d, %I:%M %p') }}</small>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="tel:{{ current_patient.user.phone if current_patient and current_patient.user and current_patient.user.phone else '9864199887' }}" class="btn btn-danger fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-phone me-1"></i> Call Patient ({{ current_patient.user.name if current_patient and current_patient.user else 'Patient' }})</a>
+          <button class="btn btn-outline-dark fw-bold px-3 py-2 rounded-pill" onclick="ackAlert({{ alt.id }})">Acknowledge Alert</button>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- Caregiver Header & Patient Selector -->
+  <div class="card card-mindcare p-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%); border-left: 6px solid var(--primary-color) !important;">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <span class="badge bg-teal text-white fs-6 mb-1" style="background-color: var(--primary-color);">SMRITI Caregiver Hub &bull; Clinical Telemetry</span>
+        <h1 class="display-6 fw-bold mb-1">
+          Monitoring: {{ current_patient.user.name if current_patient else 'Patient' }}
+        </h1>
+        <p class="text-secondary mb-0">
+          Location: <strong>{{ current_patient.region if current_patient else 'Assam' }}</strong> &bull;
+          Emergency Contact: <strong>{{ current_patient.emergency_contact if current_patient else 'None' }}</strong>
+        </p>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <form method="GET" action="{{ url_for('caregiver.dashboard_page') }}" class="d-flex align-items-center gap-2">
+          <label class="fw-bold text-dark text-nowrap">Switch Patient:</label>
+          <select name="patient_id" class="form-select rounded-pill" onchange="this.form.submit()">
+            {% for p in patients %}
+              <option value="{{ p.id }}" {% if current_patient and current_patient.id == p.id %}selected{% endif %}>
+                {{ p.user.name }} (Age {{ p.user.age or 70 }}, {{ p.region }})
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+
+        <a href="{{ url_for('patient.memory_vault_page') }}" class="btn btn-elderly btn-outline-teal rounded-pill" style="border: 2px solid var(--primary-color); color: var(--primary-color);">
+          <i class="fa-solid fa-folder-heart text-danger me-2"></i> Patient Memory Vault
+        </a>
+
+        {% if current_patient %}
+          <a href="{{ url_for('caregiver.patient_details_page', patient_id=current_patient.id) }}" class="btn btn-elderly btn-primary-mc rounded-pill">
+            <i class="fa-solid fa-file-waveform me-2"></i> Full Clinical File
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Telemetry Metrics Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-teal">
+        <small class="text-muted d-block fw-bold">Cognitive Score</small>
+        <div class="fs-2 fw-bold my-1" style="color: var(--primary-color);">{{ avg_score }}/100</div>
+        <span class="badge bg-success-subtle text-success">Steady Trend</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-primary">
+        <small class="text-muted d-block fw-bold">Completed Games</small>
+        <div class="fs-2 fw-bold text-primary my-1">{{ games_completed }}</div>
+        <span class="badge bg-primary-subtle text-primary">All Sessions</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-info">
+        <small class="text-muted d-block fw-bold">Average Accuracy</small>
+        <div class="fs-2 fw-bold text-info my-1">{{ avg_accuracy }}%</div>
+        <span class="badge bg-info-subtle text-info">High Recall</span>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-warning">
+        <small class="text-muted d-block fw-bold">Missed Reminders</small>
+        <div class="fs-2 fw-bold {% if missed_reminders > 0 %}text-danger{% else %}text-success{% endif %} my-1">
+          {{ missed_reminders }}
+        </div>
+        <span class="badge {% if missed_reminders > 0 %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %}">
+          {% if missed_reminders > 0 %}Follow-up needed{% else %}On Track{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="col-md-8 col-lg-4">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm d-flex flex-column justify-content-center border-top border-4 border-secondary">
+        <small class="text-muted d-block fw-bold">Last Recorded Gameplay</small>
+        <div class="fs-4 fw-bold text-dark my-1">{{ last_active }}</div>
+        <small class="text-muted">Assisted voice and memory sessions</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Caregiver Supportive Alerts -->
+  <div class="card card-mindcare p-4 mb-4 shadow-sm border-start border-warning border-5 rounded-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="fw-bold fs-4 mb-0">
+        <i class="fa-solid fa-bell text-warning me-2"></i>
+        Caregiver Monitoring & Priority Alerts
+      </h2>
+      <span class="badge bg-warning text-dark rounded-pill">{{ alerts|length }} Notifications</span>
+    </div>
+
+    <p class="text-muted small mb-3">
+      Review missed medications, appointment reminders, and emergency alerts.
+    </p>
+
+    <div class="list-group">
+      {% for alt in alerts %}
+        <div class="list-group-item d-flex align-items-center justify-content-between py-3 border-bottom rounded-3 mb-2 {% if alt.alert_type == 'emergency_sos' %}bg-danger-subtle border-danger{% elif alt.status == 'unread' %}bg-warning-subtle{% endif %}">
+          <div class="d-flex align-items-center gap-3">
+            <div class="fs-2 {% if alt.alert_type == 'emergency_sos' %}text-danger{% elif alt.alert_type == 'missed_medicine' %}text-danger{% elif alt.alert_type == 'appointment' %}text-primary{% else %}text-warning{% endif %}">
+              <i class="fa-solid {% if alt.alert_type == 'emergency_sos' %}fa-triangle-exclamation{% elif alt.alert_type == 'missed_medicine' %}fa-pills{% elif alt.alert_type == 'appointment' %}fa-calendar-check{% else %}fa-bell{% endif %}"></i>
+            </div>
+            <div>
+              <p class="fw-bold fs-6 mb-0">{{ alt.message }}</p>
+              <small class="text-muted">
+                {{ alt.created_at.strftime('%b %d, %I:%M %p') }} &bull; Type: {{ alt.alert_type.replace('_', ' ').title() }}
+              </small>
+            </div>
+          </div>
+
+          <div>
+            {% if alt.status == 'unread' %}
+              <button class="btn btn-sm btn-dark fw-bold rounded-pill px-3" onclick="ackAlert({{ alt.id }})">
+                Acknowledge
+              </button>
+            {% else %}
+              <span class="badge bg-secondary rounded-pill">Acknowledged</span>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <p class="text-muted p-3 mb-0">No active alerts for this patient.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 4 Interactive Chart.js Visualizations Grid -->
+  <div class="row g-4 mb-4">
+    <!-- Chart 1: Cognitive Score Trend -->
+    <div class="col-lg-6">
+      <div class="card card-mindcare p-4 h-100 shadow-sm rounded-4">
+        <h3 class="fw-bold fs-5 mb-3">
+          <i class="fa-solid fa-chart-line text-teal me-2" style="color: var(--primary-color);"></i>
+          1. Cognitive Score Trend (7 Days)
+        </h3>
+        <div style="height: 260px;">
+          <canvas id="caregiverTrendChart" data-patient-id="{{ current_patient.id if current_patient else 1 }}"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Game Accuracy -->
+    <div class="col-lg-6">
+      <div class="card card-mindcare p-4 h-100 shadow-sm rounded-4">
+        <h3 class="fw-bold fs-5 mb-3">
+          <i class="fa-solid fa-chart-bar text-primary me-2"></i>
+          2. Game Accuracy Breakdown
+        </h3>
+        <div style="height: 260px;">
+          <canvas id="caregiverDomainChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 3: Activity Frequency -->
+    <div class="col-lg-6">
+      <div class="card card-mindcare p-4 h-100 shadow-sm rounded-4">
+        <h3 class="fw-bold fs-5 mb-3">
+          <i class="fa-solid fa-chart-simple text-success me-2"></i>
+          3. Daily Activity Frequency
+        </h3>
+        <div style="height: 260px;">
+          <canvas id="caregiverActivityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 4: Reminder Completion -->
+    <div class="col-lg-6">
+      <div class="card card-mindcare p-4 h-100 shadow-sm rounded-4">
+        <h3 class="fw-bold fs-5 mb-3">
+          <i class="fa-solid fa-chart-pie text-warning me-2"></i>
+          4. Medication & Routine Adherence
+        </h3>
+        <div style="height: 260px;">
+          <canvas id="caregiverReminderChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function ackAlert(id) {
+  try {
+    const resp = await fetch(`/api/caregiver/alerts/${id}/ack`, { method: 'POST' });
+    if (resp.ok) location.reload();
+  } catch (e) {
+    console.error(e);
+  }
+}
+</script>
+{% endblock %}

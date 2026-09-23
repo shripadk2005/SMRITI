@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Register – SMRITI (AI Cognitive Care){% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-9 col-lg-7">
+      <div class="card card-mindcare p-4 p-md-5 shadow-sm border-0" style="border-radius: 20px;">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-teal-soft text-teal p-3 rounded-circle mb-3" style="width: 70px; height: 70px; background: rgba(15, 118, 110, 0.1); color: var(--teal-primary);">
+            <i class="fa-solid fa-user-plus fs-2"></i>
+          </div>
+          <h2 class="fw-bold text-dark" data-i18n="register">Create Your Account</h2>
+          <p class="text-muted">Register an elderly patient, caregiver, or healthcare official on SMRITI</p>
+        </div>
+
+        <form action="{{ url_for('auth.register_page') }}" method="POST">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Full Name *</label>
+              <input type="text" name="name" class="form-control form-control-lg" placeholder="e.g. Raj Kumar" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Email Address *</label>
+              <input type="email" name="email" class="form-control form-control-lg" placeholder="name@example.com" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Phone Number</label>
+              <input type="tel" name="phone" class="form-control form-control-lg" placeholder="10-digit mobile number">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Password *</label>
+              <input type="password" name="password" class="form-control form-control-lg" placeholder="Create a secure password" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">User Role *</label>
+              <select name="role" id="reg-role" class="form-select form-select-lg" onchange="togglePatientFields()">
+                <option value="patient" selected>Elderly Patient</option>
+                <option value="caregiver">Caregiver / Family</option>
+                <option value="admin">Healthcare Officer</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Age</label>
+              <input type="number" name="age" class="form-control form-control-lg" placeholder="e.g. 72" min="1" max="120">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Gender</label>
+              <select name="gender" class="form-select form-select-lg">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Regional & Patient-Specific Fields -->
+            <div id="patient-extra-fields" class="row g-3 m-0 p-0">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">North-Eastern State / Region</label>
+                <select name="region" class="form-select form-select-lg">
+                  <option value="Assam" selected>Assam (অসম)</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Manipur">Manipur (মণিপুর)</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Tripura">Tripura (ত্রিপুরা)</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Sikkim">Sikkim</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Preferred Language</label>
+                <select name="language" class="form-select form-select-lg">
+                  <option value="en">English</option>
+                  <option value="hi">हिंदी (Hindi)</option>
+                  <option value="as">অসমীয়া (Assamese)</option>
+                  <option value="bn">বাংলা (Bengali)</option>
+                  <option value="mn">মৈতৈলোন্ (Manipuri)</option>
+                  <option value="kha">Khasi</option>
+                  <option value="mizo">Mizo</option>
+                  <option value="nag">Nagamese</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold">Emergency Contact (Name & Phone)</label>
+                <input type="text" name="emergency_contact" class="form-control form-control-lg" placeholder="e.g. Sunita Sharma (Daughter) - 9435011223">
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <button type="submit" class="btn btn-elderly btn-primary-mc w-100 fs-4">
+              <i class="fa-solid fa-user-check me-2"></i> Complete Registration
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center mt-4">
+          <p class="mb-0">Already registered? <a href="{{ url_for('auth.login_page') }}" class="fw-bold text-success" data-i18n="login">Login here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePatientFields() {
+  const role = document.getElementById('reg-role').value;
+  const extra = document.getElementById('patient-extra-fields');
+  if (role === 'patient') {
+    extra.style.display = 'flex';
+  } else {
+    extra.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}

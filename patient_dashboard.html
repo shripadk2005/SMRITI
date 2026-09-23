@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Elderly Personalized Greeting Header with SOS Button -->
+  <div class="card card-mindcare p-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%); border-left: 6px solid var(--primary-color) !important;">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <span class="badge bg-teal text-white fs-6 mb-1" style="background-color: var(--primary-color);">{{ patient.region if patient else 'Assam' }} &bull; SMRITI Cognitive Care</span>
+        <h1 class="display-5 fw-bold text-dark mb-1">
+          {{ greeting_time }}, {{ user.name if user else 'Friend' }} 👋
+        </h1>
+        <p class="fs-5 text-secondary mb-0">Here is your daily cognitive journey and memory schedule. Enjoy your day with calmness and joy!</p>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        <!-- Emergency SOS Button -->
+        <button class="btn btn-elderly btn-emergency-sos" onclick="triggerEmergencySOS()" title="Press for Immediate Emergency Caregiver & Location Help">
+          <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+          <span>SOS HELP</span>
+        </button>
+        <button class="btn btn-elderly btn-light border btn-read-aloud" data-read-target=".display-5">
+          <i class="fa-solid fa-volume-high text-primary me-2"></i> <span data-i18n="read_aloud">Read Greeting</span>
+        </button>
+        <button class="btn btn-elderly btn-primary-mc" onclick="window.voiceAssistant.startListening()">
+          <i class="fa-solid fa-microphone me-2"></i> <span data-i18n="speak">Speak</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Medicine & Appointment Alert Banner -->
+  <div class="active-countdown-banner mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3 rounded-4 shadow-sm">
+    <div class="d-flex align-items-center gap-3">
+      <div class="icon-bubble icon-bubble-amber" style="background: #fee2e2; color: #dc2626; width: 50px; height: 50px;">
+        <i class="fa-solid fa-pills fs-3"></i>
+      </div>
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-danger">Active Medication Alert</span>
+          <span class="badge bg-light text-dark border"><i class="fa-regular fa-clock me-1"></i> Today's Schedule</span>
+        </div>
+        <h4 class="fw-bold text-dark mb-0">Morning Blood Pressure Tablet (08:30 AM)</h4>
+        <small class="text-secondary">Take 1 tablet with fresh water after healthy breakfast</small>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-success fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="toggleReminder(1)">
+        <i class="fa-solid fa-check me-1"></i> Mark as Taken
+      </button>
+      <a href="{{ url_for('reminders.reminders_page') }}" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-bold">
+        All Reminders
+      </a>
+    </div>
+  </div>
+
+  <!-- 4 Big Glance Cards for Elderly Users -->
+  <div class="row g-4 mb-4">
+    <!-- 1. Cognitive Score Card -->
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-4 text-center h-100 border-top border-4 border-teal">
+        <div class="icon-bubble icon-bubble-teal mb-3"><i class="fa-solid fa-brain"></i></div>
+        <h3 class="fw-bold fs-5 text-muted" data-i18n="cognitive_score">Cognitive Score</h3>
+        <div class="display-4 fw-bold my-2" style="color: var(--primary-color);">{{ daily_score }}/100</div>
+        <span class="badge bg-success-subtle text-success small">Steady progress this week</span>
+      </div>
+    </div>
+
+    <!-- 2. Games Completed Today -->
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-4 text-center h-100 border-top border-4 border-primary">
+        <div class="icon-bubble icon-bubble-sky mb-3"><i class="fa-solid fa-puzzle-piece"></i></div>
+        <h3 class="fw-bold fs-5 text-muted" data-i18n="games_completed">Games Completed</h3>
+        <div class="display-4 fw-bold text-primary my-2">{{ games_completed_today }}</div>
+        <a href="{{ url_for('games.games_hub_page') }}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill">
+          Play Next Game <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- 3. Hydration Check -->
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-4 text-center h-100 border-top border-4 border-success">
+        <div class="icon-bubble icon-bubble-emerald mb-3"><i class="fa-solid fa-glass-water"></i></div>
+        <h3 class="fw-bold fs-5 text-muted" data-i18n="water_intake">Water Intake</h3>
+        <div class="display-4 fw-bold text-success my-2">{{ water_drank }} 💧</div>
+        <button class="btn btn-sm btn-outline-success fw-bold rounded-pill" onclick="logWaterGlass()">
+          +1 Glass Drank
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. Personal Memory Vault -->
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-4 text-center h-100 border-top border-4 border-danger">
+        <div class="icon-bubble icon-bubble-amber mb-3" style="background: #fef2f2; color: #dc2626;"><i class="fa-solid fa-folder-heart"></i></div>
+        <h3 class="fw-bold fs-5 text-muted">Memory Vault</h3>
+        <div class="fw-bold fs-5 text-dark my-2">Family & Serials</div>
+        <a href="{{ url_for('patient.memory_vault_page') }}" class="btn btn-sm btn-outline-danger fw-bold rounded-pill">
+          Open Vault <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Routine Checklist & Personalized Game Activities -->
+  <div class="row g-4 mb-4">
+    <!-- Checklist -->
+    <div class="col-lg-7">
+      <div class="card card-mindcare p-4 h-100 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 class="fw-bold fs-4 mb-0">
+            <i class="fa-solid fa-list-check text-teal me-2" style="color: var(--primary-color);"></i>
+            <span data-i18n="todays_activities">Today's Routine Checklist</span>
+          </h2>
+          <a href="{{ url_for('reminders.reminders_page') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            View All
+          </a>
+        </div>
+
+        <div class="list-group list-group-flush">
+          {% for r in reminders %}
+            <div class="list-group-item d-flex align-items-center justify-content-between py-3 px-2 border-bottom">
+              <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-lg rounded-circle p-0 d-flex align-items-center justify-content-center {% if r.status == 'completed' %}btn-success text-white{% else %}btn-outline-secondary{% endif %}"
+                  style="width: 44px; height: 44px;" onclick="toggleReminder({{ r.id }})">
+                  <i class="fa-solid {% if r.status == 'completed' %}fa-check{% else %}fa-circle{% endif %} fs-5"></i>
+                </button>
+                <div>
+                  <h4 class="fw-bold fs-5 mb-0 {% if r.status == 'completed' %}text-decoration-line-through text-muted{% endif %}">
+                    {{ r.title }}
+                  </h4>
+                  <small class="text-muted">
+                    <i class="fa-regular fa-clock me-1"></i> {{ r.reminder_time }} &bull; {{ r.description or 'Daily routine' }}
+                  </small>
+                </div>
+              </div>
+
+              <span class="badge {% if r.status == 'completed' %}bg-success{% elif r.status == 'missed' %}bg-danger{% else %}bg-warning text-dark{% endif %} fs-6 px-3 py-2 rounded-pill">
+                {{ r.status.title() }}
+              </span>
+            </div>
+          {% else %}
+            <p class="text-muted p-3">No pending reminders for today. Enjoy your day!</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Play Games & Memory Vault Launcher -->
+    <div class="col-lg-5">
+      <div class="card card-mindcare p-4 h-100 shadow-sm">
+        <h2 class="fw-bold fs-4 mb-3">
+          <i class="fa-solid fa-gamepad text-primary me-2"></i>
+          Recommended Activities
+        </h2>
+
+        <div class="d-flex flex-column gap-3">
+          <!-- 1. Personalized Family Recall Game -->
+          <a href="{{ url_for('games.play_game_page', slug='family-recall') }}" class="btn btn-elderly btn-light border text-start d-flex align-items-center justify-content-between p-3 rounded-4" style="background: #fff5f5; border-color: #fecdd3 !important;">
+            <div class="d-flex align-items-center gap-3">
+              <div class="fs-1 text-danger"><i class="fa-solid fa-people-roof"></i></div>
+              <div>
+                <strong class="d-block fs-5 text-dark">Who Is This? (Family Recall)</strong>
+                <small class="text-muted">AI game created from your family photos</small>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-danger"></i>
+          </a>
+
+          <!-- 2. Cultural Memory Cards -->
+          <a href="{{ url_for('games.play_game_page', slug='memory-cards') }}" class="btn btn-elderly btn-light border text-start d-flex align-items-center justify-content-between p-3 rounded-4">
+            <div class="d-flex align-items-center gap-3">
+              <div class="fs-1 text-teal" style="color: var(--primary-color);"><i class="fa-solid fa-clone"></i></div>
+              <div>
+                <strong class="d-block fs-5 text-dark">Memory Cards</strong>
+                <small class="text-muted">Match tea cups, japis & hornbills</small>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </a>
+
+          <!-- 3. Object Recall -->
+          <a href="{{ url_for('games.play_game_page', slug='object-recall') }}" class="btn btn-elderly btn-light border text-start d-flex align-items-center justify-content-between p-3 rounded-4">
+            <div class="d-flex align-items-center gap-3">
+              <div class="fs-1 text-warning"><i class="fa-solid fa-eye"></i></div>
+              <div>
+                <strong class="d-block fs-5 text-dark">Remember the Objects</strong>
+                <small class="text-muted">10-second memorization exercise</small>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </a>
+
+          <!-- 4. Memory Vault Direct -->
+          <a href="{{ url_for('patient.memory_vault_page') }}" class="btn btn-elderly btn-light border text-start d-flex align-items-center justify-content-between p-3 rounded-4">
+            <div class="d-flex align-items-center gap-3">
+              <div class="fs-1 text-primary"><i class="fa-solid fa-folder-open"></i></div>
+              <div>
+                <strong class="d-block fs-5 text-dark">Personal Memory Vault</strong>
+                <small class="text-muted">Add or view family persons & serials</small>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Cognitive Progress Chart (Chart.js) -->
+  <div class="card card-mindcare p-4 shadow-sm rounded-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+      <div>
+        <h2 class="fw-bold fs-4 mb-1">
+          <i class="fa-solid fa-chart-line text-teal me-2" style="color: var(--primary-color);"></i>
+          Weekly Cognitive Activity Trend
+        </h2>
+        <p class="text-muted mb-0">Continuous exercises and steady progress tracking</p>
+      </div>
+      <a href="{{ url_for('patient.progress_page') }}" class="btn btn-sm btn-outline-teal fw-bold rounded-pill" style="border: 2px solid var(--primary-color); color: var(--primary-color);">
+        Detailed Report <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+      </a>
+    </div>
+
+    <div style="height: 280px;">
+      <canvas id="patientProgressChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function toggleReminder(id) {
+  try {
+    const resp = await fetch(`/api/reminders/${id}/toggle`, { method: 'POST' });
+    if (resp.ok) {
+      location.reload();
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function logWaterGlass() {
+  alert("💧 Wonderful! Hydration logged. Keep drinking fresh water regularly.");
+}
+</script>
+{% endblock %}

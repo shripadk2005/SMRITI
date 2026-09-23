@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="py-5">
+    <div class="display-1 text-warning mb-3"><i class="fa-solid fa-compass"></i></div>
+    <h1 class="display-4 fw-bold">Page Not Found (404)</h1>
+    <p class="fs-4 text-secondary mb-4">
+      {{ message or "Don't worry, let's take you back to a safe and familiar place." }}
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{{ url_for('public_index') }}" class="btn btn-elderly btn-primary-mc">
+        <i class="fa-solid fa-house me-2"></i> Return to Home
+      </a>
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('patient.dashboard_page') }}" class="btn btn-elderly btn-outline-secondary">
+          <i class="fa-solid fa-gauge me-2"></i> Go to Dashboard
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

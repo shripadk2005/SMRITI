@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Familiar Memories – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <span class="badge bg-teal text-white fs-6 px-3 py-1 rounded-pill mb-2" style="background-color: var(--primary-color);">
+        <i class="fa-solid fa-heart me-1"></i> Familiar Memories & Personal Moments
+      </span>
+      <h1 class="display-6 fw-bold text-dark mb-1" data-i18n="memories">🌺 Familiar Memories & Life Moments</h1>
+      <p class="fs-5 text-secondary mb-0">
+        Photos of your loved ones, favorite serials & music, and nostalgic cultural sights of our North-Eastern homeland.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-elderly btn-success text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#addFamiliarMemoryModal">
+        <i class="fa-solid fa-image me-1"></i> Add Memory with Photo
+      </button>
+      <a href="{{ url_for('games.play_game_page', slug='family-recall') }}" class="btn btn-elderly btn-primary-mc">
+        <i class="fa-solid fa-gamepad me-1"></i> Play Family Recall Game
+      </a>
+      <button class="btn btn-elderly btn-light border btn-read-aloud" data-read-target=".container p">
+        <i class="fa-solid fa-volume-high text-primary me-1"></i> Read
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Cognitive Game Sync Banner -->
+  <div class="card p-3 mb-4 rounded-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%); border-left: 5px solid var(--primary-color) !important;">
+    <div class="d-flex align-items-center gap-3">
+      <div class="fs-1 text-teal"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <div>
+        <h5 class="fw-bold text-dark mb-1">Personal Photo & Show Integration:</h5>
+        <p class="mb-0 text-secondary">
+          You can add photos of your family persons, favorite TV shows, or home. SMRITI immediately uses these uploaded photos to create personalized cognitive exercises in the <strong>Family Recall Game</strong>!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Filter Pills -->
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-outline-teal active filter-mem-btn rounded-pill px-3 fw-bold" data-category="all">
+      All Memories (<span id="total-count">{{ (memories|length) + 6 }}</span>)
+    </button>
+    <button class="btn btn-outline-secondary filter-mem-btn rounded-pill px-3 fw-bold" data-category="family">
+      👨‍👩‍👧 Family & Loved Ones
+    </button>
+    <button class="btn btn-outline-secondary filter-mem-btn rounded-pill px-3 fw-bold" data-category="favorite_show">
+      📺 Favorite Shows & Music
+    </button>
+    <button class="btn btn-outline-secondary filter-mem-btn rounded-pill px-3 fw-bold" data-category="address">
+      🏠 Familiar Homes & Places
+    </button>
+    <button class="btn btn-outline-secondary filter-mem-btn rounded-pill px-3 fw-bold" data-category="cultural">
+      🌺 Cultural Heritage
+    </button>
+  </div>
+
+  <!-- Memory Cards Grid -->
+  <div class="row g-4" id="memories-grid">
+    <!-- User Added Personal Memories (with Photos of Persons or Shows) -->
+    {% for m in memories %}
+      <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="{{ m.category }}">
+        <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+          <!-- Person or Show Photo -->
+          <div class="position-relative mb-3">
+            {% if m.image_url %}
+              <img src="{{ m.image_url }}" alt="{{ m.title }}" class="img-fluid rounded-4 shadow-sm mx-auto" style="width: 100%; height: 190px; object-fit: cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80'">
+            {% else %}
+              <div class="icon-bubble {% if m.category == 'family' %}icon-bubble-teal{% elif m.category == 'favorite_show' %}icon-bubble-amber{% else %}icon-bubble-sky{% endif %} mx-auto" style="width: 90px; height: 90px;">
+                <i class="fa-solid {% if m.category == 'family' %}fa-user-heart{% elif m.category == 'favorite_show' %}fa-tv{% else %}fa-house{% endif %} fs-2"></i>
+              </div>
+            {% endif %}
+          </div>
+
+          <span class="badge {% if m.category == 'family' %}bg-success{% elif m.category == 'favorite_show' %}bg-warning text-dark{% else %}bg-primary{% endif %} memory-category-pill mb-2 align-self-center px-3 py-1">
+            {{ m.relationship_or_type }}
+          </span>
+
+          <h3 class="fw-bold fs-4 text-dark mb-1">{{ m.title }}</h3>
+          <p class="text-muted flex-grow-1 fs-6 mb-3">{{ m.details or 'Cherished personal memory' }}</p>
+
+          <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('{{ m.title }}, your {{ m.relationship_or_type }}. {{ m.details or '' }}')">
+              <i class="fa-solid fa-volume-high me-1"></i> Listen
+            </button>
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteFamiliarMemory({{ m.id }}, this)">
+              <i class="fa-solid fa-trash-can me-1"></i> Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- North-Eastern Cultural Memories -->
+    <!-- 1. Assam Tea Gardens -->
+    <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="cultural">
+      <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&auto=format&fit=crop&q=80" alt="Morning Assam Tea" class="img-fluid rounded-4 shadow-sm mx-auto mb-3" style="width: 100%; height: 190px; object-fit: cover;">
+        <span class="badge bg-success-subtle text-success border border-success mb-2 align-self-center px-3 py-1">Assam Heritage</span>
+        <h3 class="fw-bold fs-4 text-dark mb-1">Morning Assam Tea</h3>
+        <p class="text-muted flex-grow-1 fs-6 mb-3">The fresh aroma of CTC tea leaves brewed in hot milk, greeting the sunrise over lush green valley gardens.</p>
+        <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('Morning Assam Tea: The fresh aroma of CTC tea leaves brewed in hot milk.')">
+            <i class="fa-solid fa-volume-high me-1"></i> Listen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Japi -->
+    <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="cultural">
+      <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&auto=format&fit=crop&q=80" alt="Traditional Japi" class="img-fluid rounded-4 shadow-sm mx-auto mb-3" style="width: 100%; height: 190px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=300'">
+        <span class="badge bg-warning-subtle text-dark border border-warning mb-2 align-self-center px-3 py-1">Heritage Symbol</span>
+        <h3 class="fw-bold fs-4 text-dark mb-1">Traditional Japi</h3>
+        <p class="text-muted flex-grow-1 fs-6 mb-3">Conical hat tightly woven with bamboo and toku leaves, offered to respected guests and elders with devotion.</p>
+        <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('Traditional Japi: Conical hat woven from bamboo and toku leaves.')">
+            <i class="fa-solid fa-volume-high me-1"></i> Listen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Rongali Bihu -->
+    <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="cultural">
+      <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop&q=80" alt="Rongali Bihu Spring Festival" class="img-fluid rounded-4 shadow-sm mx-auto mb-3" style="width: 100%; height: 190px; object-fit: cover;">
+        <span class="badge bg-danger-subtle text-danger border border-danger mb-2 align-self-center px-3 py-1">Festivals</span>
+        <h3 class="fw-bold fs-4 text-dark mb-1">Rongali Bihu Spring</h3>
+        <p class="text-muted flex-grow-1 fs-6 mb-3">Celebrating new harvest and springtime with energetic dhol beats, pepa horns, and joyful community folk songs.</p>
+        <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('Rongali Bihu: Joyful spring celebration with dhol drums and community songs.')">
+            <i class="fa-solid fa-volume-high me-1"></i> Listen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Pitha and Laru -->
+    <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="cultural">
+      <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&auto=format&fit=crop&q=80" alt="Warm Pitha & Sesame Laru" class="img-fluid rounded-4 shadow-sm mx-auto mb-3" style="width: 100%; height: 190px; object-fit: cover;">
+        <span class="badge bg-primary-subtle text-primary border border-primary mb-2 align-self-center px-3 py-1">Traditional Cuisine</span>
+        <h3 class="fw-bold fs-4 text-dark mb-1">Warm Pitha & Laru</h3>
+        <p class="text-muted flex-grow-1 fs-6 mb-3">Crispy rice roll cakes stuffed with grated coconut and warm jaggery syrup, prepared with love on festive mornings.</p>
+        <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('Warm Pitha and Laru: Delicious rice sweets filled with coconut and jaggery.')">
+            <i class="fa-solid fa-volume-high me-1"></i> Listen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Living Root Bridges -->
+    <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="cultural">
+      <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&auto=format&fit=crop&q=80" alt="Living Root Bridges" class="img-fluid rounded-4 shadow-sm mx-auto mb-3" style="width: 100%; height: 190px; object-fit: cover;">
+        <span class="badge bg-success-subtle text-success border border-success mb-2 align-self-center px-3 py-1">Meghalaya</span>
+        <h3 class="fw-bold fs-4 text-dark mb-1">Living Root Bridges</h3>
+        <p class="text-muted flex-grow-1 fs-6 mb-3">Magnificent bridges trained from living rubber fig tree roots by Khasi elders over crystal mountain streams.</p>
+        <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('Living Root Bridges: Natural wonders crafted across mountain streams in Meghalaya.')">
+            <i class="fa-solid fa-volume-high me-1"></i> Listen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Bamboo Flute -->
+    <div class="col-md-6 col-lg-4 memory-grid-item" data-cat="cultural">
+      <div class="card card-mindcare h-100 p-4 shadow-sm text-center border-0" style="border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" alt="Melodious Bamboo Flute" class="img-fluid rounded-4 shadow-sm mx-auto mb-3" style="width: 100%; height: 190px; object-fit: cover;">
+        <span class="badge bg-info-subtle text-info border border-info mb-2 align-self-center px-3 py-1">Music & Crafts</span>
+        <h3 class="fw-bold fs-4 text-dark mb-1">Melodious Bamboo Flute</h3>
+        <p class="text-muted flex-grow-1 fs-6 mb-3">The soothing, echoing melodies of highland bamboo flutes drifting across green valleys and river banks in the evening.</p>
+        <div class="d-flex justify-content-center gap-2 mt-auto pt-2 border-top">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.voiceAssistant.speak('Bamboo Flute: Soothing, gentle music echoing across North-Eastern hills.')">
+            <i class="fa-solid fa-volume-high me-1"></i> Listen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Familiar Memory with Photo -->
+<div class="modal fade" id="addFamiliarMemoryModal" tabindex="-1" aria-labelledby="addFamiliarMemoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+      <div class="modal-header bg-teal text-white p-3" style="background-color: var(--primary-color);">
+        <h5 class="modal-title fw-bold" id="addFamiliarMemoryModalLabel">
+          <i class="fa-solid fa-image me-2"></i> Add Familiar Memory with Photo
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="addFamiliarMemoryForm">
+        <div class="modal-body p-4">
+          <!-- Category -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Memory Category *</label>
+            <select name="category" id="fam-category" class="form-select form-select-lg" required onchange="updateFamiliarCategoryLabels(this.value)">
+              <option value="family" selected>👨‍👩‍👧 Family Person / Loved One</option>
+              <option value="favorite_show">📺 Favorite TV Show / Serial / Music</option>
+              <option value="address">🏠 Familiar Address / Home Location</option>
+            </select>
+          </div>
+
+          <!-- Title -->
+          <div class="mb-3">
+            <label class="form-label fw-bold" id="fam-label-title">Person's Full Name *</label>
+            <input type="text" name="title" id="fam-title" class="form-control form-control-lg" placeholder="e.g. Sunita Sharma" required>
+          </div>
+
+          <!-- Relationship or Type -->
+          <div class="mb-3">
+            <label class="form-label fw-bold" id="fam-label-relation">Relationship *</label>
+            <input type="text" name="relationship_or_type" id="fam-relation" class="form-control form-control-lg" placeholder="e.g. Daughter, Grandson, Late Wife" required>
+          </div>
+
+          <!-- Image Option: File Upload & URL -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-camera text-primary me-1"></i> Person or Show Photo / Image
+            </label>
+            
+            <!-- File Upload Input -->
+            <div class="input-group mb-2">
+              <input type="file" id="fam-file-input" accept="image/*" class="form-control form-control-lg">
+            </div>
+            <small class="text-muted d-block mb-2">
+              <i class="fa-solid fa-arrow-up-from-bracket me-1"></i> Choose a photo directly from your computer or phone gallery.
+            </small>
+
+            <!-- Instant Live Image Preview -->
+            <div id="fam-preview-container" class="p-2 border rounded-4 text-center bg-light d-none mb-3">
+              <img id="fam-preview-img" src="" alt="Photo Preview" class="img-fluid rounded-3 shadow-sm" style="max-height: 180px; object-fit: contain;">
+              <div class="small text-success mt-1 fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Photo ready to save</div>
+            </div>
+
+            <!-- Alternative Online URL -->
+            <label class="form-label small fw-bold text-secondary mb-1">Or Paste Image URL (Optional):</label>
+            <input type="url" name="image_url" id="fam-image-url" class="form-control" placeholder="https://example.com/photo.jpg">
+
+            <!-- Presets for fast selection -->
+            <div class="mt-2">
+              <small class="d-block text-muted mb-1">Or choose a quick preset:</small>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-outline-secondary fam-avatar-preset" data-url="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80">
+                  👩 Daughter
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary fam-avatar-preset" data-url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80">
+                  👨 Son
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary fam-avatar-preset" data-url="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=300&auto=format&fit=crop&q=80">
+                  👦 Grandson
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary fam-avatar-preset" data-url="https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=300&auto=format&fit=crop&q=80">
+                  📺 TV Serial (Ramayan)
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary fam-avatar-preset" data-url="https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=300&auto=format&fit=crop&q=80">
+                  🏠 Home
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memorable Clue / Details -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Memorable Clue or Story</label>
+            <textarea name="details" id="fam-details" class="form-control" rows="2" placeholder="e.g. Visits on Sundays with warm Assam tea; Watched together at 9 PM on DD National"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0 p-3 bg-light">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-elderly btn-primary-mc px-4" id="save-fam-mem-btn">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Save Memory
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function updateFamiliarCategoryLabels(cat) {
+  const titleLabel = document.getElementById('fam-label-title');
+  const relLabel = document.getElementById('fam-label-relation');
+  const titleInput = document.getElementById('fam-title');
+  const relInput = document.getElementById('fam-relation');
+
+  if (cat === 'family') {
+    titleLabel.textContent = "Person's Full Name *";
+    relLabel.textContent = "Relationship *";
+    titleInput.placeholder = "e.g. Sunita Sharma";
+    relInput.placeholder = "e.g. Daughter, Grandson, Brother";
+  } else if (cat === 'favorite_show') {
+    titleLabel.textContent = "Show / Song Title *";
+    relLabel.textContent = "Type / Category *";
+    titleInput.placeholder = "e.g. Ramayan, Bihu Songs";
+    relInput.placeholder = "e.g. Evening Serial, Folk Music";
+  } else if (cat === 'address') {
+    titleLabel.textContent = "Address / Location Title *";
+    relLabel.textContent = "Location Type *";
+    titleInput.placeholder = "e.g. House #14, Zoo Road, Guwahati";
+    relInput.placeholder = "e.g. Permanent Residence, Childhood Town";
+  }
+}
+
+// Live Image Preview when file is selected
+const fileInput = document.getElementById('fam-file-input');
+const previewContainer = document.getElementById('fam-preview-container');
+const previewImg = document.getElementById('fam-preview-img');
+const imageUrlInput = document.getElementById('fam-image-url');
+
+if (fileInput) {
+  fileInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        previewContainer.classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewContainer.classList.add('d-none');
+    }
+  });
+}
+
+// Preset avatar buttons
+document.querySelectorAll('.fam-avatar-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.fam-avatar-preset').forEach(b => b.classList.remove('btn-primary', 'text-white'));
+    btn.classList.add('btn-primary', 'text-white');
+    imageUrlInput.value = btn.dataset.url;
+    previewImg.src = btn.dataset.url;
+    previewContainer.classList.remove('d-none');
+    if (fileInput) fileInput.value = '';
+  });
+});
+
+// Category filtering
+function initFamiliarFilters() {
+  document.querySelectorAll('.filter-mem-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-mem-btn').forEach(b => {
+        b.classList.remove('active', 'btn-outline-teal');
+        b.classList.add('btn-outline-secondary');
+      });
+      btn.classList.add('active', 'btn-outline-teal');
+      btn.classList.remove('btn-outline-secondary');
+
+      const cat = btn.dataset.category;
+      document.querySelectorAll('.memory-grid-item').forEach(item => {
+        if (cat === 'all' || item.dataset.cat === cat) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+}
+
+// Add Familiar Memory Form Submit
+const addFamForm = document.getElementById('addFamiliarMemoryForm');
+if (addFamForm) {
+  addFamForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('save-fam-mem-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+    let uploadedUrl = imageUrlInput.value.trim();
+
+    // If user selected a local file, upload it first to /api/upload-image
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+
+      try {
+        const uploadResp = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData
+        });
+        if (uploadResp.ok) {
+          const uploadData = await uploadResp.json();
+          uploadedUrl = uploadData.url;
+        } else {
+          const err = await uploadResp.json();
+          alert("Image upload notice: " + (err.error || "Using default icon"));
+        }
+      } catch (uploadErr) {
+        console.warn("Upload error, proceeding with default", uploadErr);
+      }
+    }
+
+    const payload = {
+      category: document.getElementById('fam-category').value,
+      title: document.getElementById('fam-title').value,
+      relationship_or_type: document.getElementById('fam-relation').value,
+      details: document.getElementById('fam-details').value,
+      image_url: uploadedUrl
+    };
+
+    try {
+      const resp = await fetch('/api/patient/memories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (resp.ok) {
+        location.reload();
+      } else {
+        const err = await resp.json();
+        alert("Error: " + (err.error || "Could not save memory"));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Save Memory';
+      }
+    } catch (err) {
+      alert("Network error: " + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Save Memory';
+    }
+  });
+}
+
+// Delete Familiar Memory
+async function deleteFamiliarMemory(id, btn) {
+  if (!confirm("Are you sure you want to remove this familiar memory?")) return;
+  try {
+    btn.disabled = true;
+    const resp = await fetch(`/api/patient/memories/${id}`, { method: 'DELETE' });
+    if (resp.ok) {
+      location.reload();
+    } else {
+      alert("Could not remove memory.");
+      btn.disabled = false;
+    }
+  } catch (e) {
+    alert("Error: " + e.message);
+    btn.disabled = false;
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFamiliarFilters);
+} else {
+  initFamiliarFilters();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Healthcare Administration – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Header -->
+  <div class="card card-mindcare p-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <span class="badge bg-success fs-6 mb-1">Healthcare Officer / Administrative Control</span>
+        <h1 class="display-6 fw-bold mb-1">SMRITI Healthcare Analytics</h1>
+        <p class="text-secondary mb-0">Aggregated cognitive monitoring & regional deployment telemetry across the North-Eastern Region.</p>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-elderly btn-light border btn-read-aloud" data-read-target=".display-6">
+          <i class="fa-solid fa-volume-high text-primary me-2"></i> Read Overview
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Row (Section 22) -->
+  <div class="row g-3 mb-4">
+    <!-- Total Patients -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-success">
+        <small class="text-muted d-block fw-bold">Total Patients</small>
+        <div class="display-6 fw-bold text-success my-1">{{ total_patients }}</div>
+        <small class="text-muted">Registered</small>
+      </div>
+    </div>
+
+    <!-- Active Patients -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-primary">
+        <small class="text-muted d-block fw-bold">Active Patients</small>
+        <div class="display-6 fw-bold text-primary my-1">{{ active_patients }}</div>
+        <small class="text-muted">Engaged this week</small>
+      </div>
+    </div>
+
+    <!-- Games Played Today -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-warning">
+        <small class="text-muted d-block fw-bold">Games Today</small>
+        <div class="display-6 fw-bold text-warning my-1">{{ games_today }}</div>
+        <small class="text-muted">{{ total_games_all }} All-Time</small>
+      </div>
+    </div>
+
+    <!-- Average Activity Score -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-info">
+        <small class="text-muted d-block fw-bold">Average Score</small>
+        <div class="display-6 fw-bold text-info my-1">{{ avg_score }}/100</div>
+        <small class="text-muted">Composite Index</small>
+      </div>
+    </div>
+
+    <!-- Reminder Completion Rate -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-success">
+        <small class="text-muted d-block fw-bold">Reminder Rate</small>
+        <div class="display-6 fw-bold text-success my-1">{{ reminder_rate }}%</div>
+        <small class="text-muted">Routine Adherence</small>
+      </div>
+    </div>
+
+    <!-- Offline Sync Count -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-4 border-secondary">
+        <small class="text-muted d-block fw-bold">Offline Syncs</small>
+        <div class="display-6 fw-bold text-secondary my-1">{{ sync_count }}</div>
+        <small class="text-muted">PWA Queue Syncs</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regional Analytics & Category Charts -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7">
+      <div class="card card-mindcare p-4 h-100 shadow-sm">
+        <h3 class="fw-bold fs-5 mb-3">
+          <i class="fa-solid fa-map-location-dot text-success me-2"></i>
+          Regional Patient Distribution (NER States)
+        </h3>
+        <div style="height: 270px;">
+          <canvas id="adminRegionalChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card card-mindcare p-4 h-100 shadow-sm">
+        <h3 class="fw-bold fs-5 mb-3">
+          <i class="fa-solid fa-shapes text-primary me-2"></i>
+          Cognitive Exercise Distribution
+        </h3>
+        <div style="height: 270px;">
+          <canvas id="adminCategoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registered Patients Directory Table -->
+  <div class="card card-mindcare p-4 mb-4 shadow-sm">
+    <h3 class="fw-bold fs-4 mb-3">
+      <i class="fa-solid fa-users text-primary me-2"></i> Registered Elderly Patients
+    </h3>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Patient Name</th>
+            <th>Age / Gender</th>
+            <th>Region</th>
+            <th>Emergency Contact</th>
+            <th>Caregiver</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in patients %}
+            <tr>
+              <td>
+                <strong>{{ p.user.name }}</strong>
+                <small class="text-muted d-block">{{ p.user.email }}</small>
+              </td>
+              <td>{{ p.user.age or 'N/A' }} / {{ p.user.gender or 'N/A' }}</td>
+              <td><span class="badge bg-light text-success border border-success">{{ p.region }}</span></td>
+              <td>{{ p.emergency_contact }}</td>
+              <td>{{ p.caregiver.user.name if p.caregiver and p.caregiver.user else 'Assigned Nurse' }}</td>
+              <td>
+                <a href="{{ url_for('caregiver.patient_details_page', patient_id=p.id) }}" class="btn btn-sm btn-outline-primary fw-bold">
+                  View Telemetry
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

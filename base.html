@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="{{ active_language or 'en' }}" class="font-normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SMRITI (স্মৃতি / स्मृति) – AI Cognitive Assistance & Dementia Care Platform for Elderly Users in North-Eastern India">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="/manifest.json">
+  <title>{% block title %}SMRITI – AI Cognitive & Dementia Care Platform{% endblock %}</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- SMRITI Custom Clinical Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Offline Mode Warning Banner -->
+  <div id="offline-banner" role="alert">
+    <i class="fa-solid fa-wifi-slash me-2"></i>
+    <span data-i18n="offline_mode">Offline Mode active. Cached games & reminders available.</span>
+    <span id="pending-sync-badge" class="badge bg-danger ms-2" style="display:none;"></span>
+  </div>
+
+  <!-- Persistent Elderly Accessibility Bar -->
+  <aside class="accessibility-bar" aria-label="Accessibility options">
+    <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="fw-bold text-dark"><i class="fa-solid fa-universal-access text-success me-1"></i> <span data-i18n="font_size">Text Size</span>:</span>
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn access-btn" data-font-size="font-sm" title="Smaller font">A-</button>
+          <button type="button" class="btn access-btn" data-font-size="font-normal" title="Standard font">A</button>
+          <button type="button" class="btn access-btn" data-font-size="font-lg" title="Large font">A+</button>
+          <button type="button" class="btn access-btn" data-font-size="font-xl" title="Extra large font">A++</button>
+        </div>
+
+        <button type="button" id="contrast-toggle-btn" class="btn access-btn ms-2">
+          <i class="fa-solid fa-circle-half-stroke me-1"></i> <span data-i18n="contrast">High Contrast</span>
+        </button>
+
+        <button type="button" class="btn access-btn btn-read-aloud ms-1">
+          <i class="fa-solid fa-volume-high text-primary me-1"></i> <span data-i18n="read_aloud">Read Page</span>
+        </button>
+      </div>
+
+      <!-- Multilingual Language Selector (NER Focus) -->
+      <div class="d-flex align-items-center gap-2">
+        <label for="global-lang-select" class="visually-hidden">Select Language</label>
+        <i class="fa-solid fa-language fs-5 text-primary"></i>
+        <select id="global-lang-select" class="form-select form-select-sm" style="width: auto; font-weight: 600;">
+          <option value="en">English (English)</option>
+          <option value="hi">हिंदी (Hindi)</option>
+          <option value="as">অসমীয়া (Assamese)</option>
+          <option value="bn">বাংলা (Bengali)</option>
+          <option value="mn">মৈতৈলোন্ (Manipuri)</option>
+          <option value="kha">Khasi (Meghalaya)</option>
+          <option value="mizo">Mizo (Mizoram)</option>
+          <option value="nag">Nagamese (Nagaland)</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-mindcare sticky-top">
+    <div class="container-fluid">
+      <!-- SMRITI Brand -->
+      <a class="navbar-brand" href="{{ url_for('public_index') }}">
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div>
+          <span class="fw-bold fs-4">SMRITI</span>
+          <small class="d-block text-muted" style="font-size:0.68rem; margin-top:-4px; letter-spacing:1px;">স্মৃতি • स्मृति</small>
+        </div>
+        <span class="brand-badge d-none d-sm-inline-block">AI COGNITIVE CARE</span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <!-- Mobile Emergency SOS Button -->
+        <button type="button" class="btn-emergency-sos btn-sm py-1 px-3" onclick="triggerEmergencySOS()" title="Emergency SOS Help">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>SOS</span>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mindcareNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="mindcareNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('public_index') }}">
+              <i class="fa-solid fa-house me-1"></i> <span data-i18n="home">Home</span>
+            </a>
+          </li>
+
+          {% if session.get('user_id') %}
+            {% if session.get('user_role') == 'patient' %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('patient.dashboard_page') }}">
+                  <i class="fa-solid fa-gauge-high me-1"></i> <span data-i18n="dashboard">Dashboard</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('games.games_hub_page') }}">
+                  <i class="fa-solid fa-puzzle-piece me-1"></i> <span data-i18n="games">Cognitive Games</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('patient.memory_vault_page') }}">
+                  <i class="fa-solid fa-folder-heart text-danger me-1"></i> <span>Memory Vault</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('reminders.reminders_page') }}">
+                  <i class="fa-solid fa-bell me-1"></i> <span data-i18n="reminders">Reminders</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('appointments.appointments_page') }}">
+                  <i class="fa-solid fa-calendar-check me-1"></i> <span data-i18n="appointments">Appointments</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('patient.progress_page') }}">
+                  <i class="fa-solid fa-chart-line me-1"></i> <span data-i18n="progress">My Progress</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('patient.familiar_memories_page') }}">
+                  <i class="fa-solid fa-landmark me-1"></i> <span data-i18n="memories">NER Heritage</span>
+                </a>
+              </li>
+            {% elif session.get('user_role') == 'caregiver' %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('caregiver.dashboard_page') }}">
+                  <i class="fa-solid fa-user-nurse me-1"></i> Caregiver Hub
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('patient.memory_vault_page') }}">
+                  <i class="fa-solid fa-folder-heart text-danger me-1"></i> Patient Vault
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('games.games_hub_page') }}">
+                  <i class="fa-solid fa-gamepad me-1"></i> Preview Games
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('reminders.reminders_page') }}">
+                  <i class="fa-solid fa-bell me-1"></i> Manage Reminders
+                </a>
+              </li>
+            {% elif session.get('user_role') == 'admin' %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('analytics.admin_dashboard_page') }}">
+                  <i class="fa-solid fa-chart-pie me-1"></i> Healthcare Admin
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('games.games_hub_page') }}">
+                  <i class="fa-solid fa-gamepad me-1"></i> Games Catalog
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+        </ul>
+
+        <!-- Right Side: Emergency SOS & User Controls -->
+        <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+          <!-- Desktop Emergency SOS Button -->
+          <button type="button" class="btn-emergency-sos d-none d-lg-inline-flex" onclick="triggerEmergencySOS()" title="Emergency SOS: Immediate Caregiver Alert & Location Help">
+            <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+            <span>EMERGENCY SOS</span>
+          </button>
+
+          {% if session.get('user_id') %}
+            <div class="dropdown">
+              <button class="btn btn-outline-teal dropdown-toggle d-flex align-items-center gap-2 fw-bold rounded-pill px-3" type="button" data-bs-toggle="dropdown" style="border: 2px solid var(--primary-color); color: var(--primary-color);">
+                <i class="fa-solid fa-circle-user fs-5 text-teal"></i>
+                <span>{{ session.get('user_name', 'User') }}</span>
+                <span class="badge bg-secondary text-uppercase" style="font-size: 0.72rem;">{{ session.get('user_role') }}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-4 mt-2">
+                <li><span class="dropdown-item-text text-muted small">{{ session.get('user_email') }}</span></li>
+                <li><hr class="dropdown-divider"></li>
+                {% if session.get('user_role') == 'patient' %}
+                  <li><a class="dropdown-item py-2" href="{{ url_for('patient.dashboard_page') }}"><i class="fa-solid fa-gauge me-2 text-primary"></i> Dashboard</a></li>
+                  <li><a class="dropdown-item py-2" href="{{ url_for('patient.memory_vault_page') }}"><i class="fa-solid fa-folder-heart me-2 text-danger"></i> Personal Memory Vault</a></li>
+                  <li><a class="dropdown-item py-2" href="{{ url_for('patient.progress_page') }}"><i class="fa-solid fa-chart-line me-2 text-success"></i> Progress Report</a></li>
+                {% elif session.get('user_role') == 'caregiver' %}
+                  <li><a class="dropdown-item py-2" href="{{ url_for('caregiver.dashboard_page') }}"><i class="fa-solid fa-user-nurse me-2 text-primary"></i> Caregiver Hub</a></li>
+                  <li><a class="dropdown-item py-2" href="{{ url_for('patient.memory_vault_page') }}"><i class="fa-solid fa-folder-heart me-2 text-danger"></i> Manage Memory Vault</a></li>
+                {% elif session.get('user_role') == 'admin' %}
+                  <li><a class="dropdown-item py-2" href="{{ url_for('analytics.admin_dashboard_page') }}"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> Admin Analytics</a></li>
+                {% endif %}
+                <li><a class="dropdown-item py-2 text-danger fw-bold" href="{{ url_for('auth.logout_page') }}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> <span data-i18n="logout">Logout</span></a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a href="{{ url_for('auth.login_page') }}" class="btn btn-outline-primary fw-bold px-3 rounded-pill">
+              <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> <span data-i18n="login">Login</span>
+            </a>
+            <a href="{{ url_for('auth.register_page') }}" class="btn btn-primary-mc fw-bold px-4 rounded-pill">
+              <i class="fa-solid fa-user-plus me-1"></i> <span data-i18n="register">Register</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Active Medicine & Appointment Notification Toast Container -->
+  <div id="activeNotificationContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1090; margin-top: 75px;">
+    <!-- Rendered dynamically by active notification engine -->
+  </div>
+
+  <!-- Flash Messages Notifications -->
+  <div class="container-fluid mt-2">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm rounded-4" role="alert">
+            <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Non-Diagnostic Medical Notice & Footer -->
+  <footer class="footer-mindcare">
+    <div class="container">
+      <div class="medical-disclaimer-box mb-4 shadow-sm">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="fa-solid fa-shield-heart text-primary fs-4"></i>
+          <strong class="text-dark">Important Medical Notice:</strong>
+        </div>
+        <p class="mb-0 text-secondary" data-i18n="disclaimer">
+          “SMRITI is an assistive cognitive stimulation and elderly memory monitoring platform. It does not replace professional medical diagnosis or clinical treatment.”
+        </p>
+      </div>
+
+      <div class="row align-items-center justify-content-between text-muted small">
+        <div class="col-md-6 mb-2 mb-md-0">
+          <strong class="text-dark">SMRITI (স্মৃতি • स्मृति)</strong> – AI Cognitive Assistance Platform for North-East India.<br>
+          Empowering elderly minds with culturally rooted games, personal memory vault, and emergency care.
+        </div>
+        <div class="col-md-6 text-md-end">
+          <span class="d-inline-flex align-items-center gap-2 flex-wrap justify-content-md-end">
+            <span class="badge bg-light text-dark border"><i class="fa-solid fa-brain text-teal me-1"></i> AI Adaptive</span>
+            <span class="badge bg-light text-dark border"><i class="fa-solid fa-folder-heart text-danger me-1"></i> Memory Vault</span>
+            <span class="badge bg-light text-dark border"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> SOS Ready</span>
+            <span class="badge bg-light text-dark border"><i class="fa-solid fa-wifi-slash text-warning me-1"></i> Offline PWA</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Emergency SOS Modal -->
+  <div class="modal fade" id="emergencySosModal" tabindex="-1" aria-labelledby="emergencySosModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header sos-modal-header p-3 justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div class="fs-2 text-warning animate-bounce"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+              <h4 class="modal-title fw-bold text-white mb-0" id="emergencySosModalLabel">EMERGENCY SOS ACTIVATED</h4>
+              <small class="text-white-50">Immediate Help & Medical Assistance</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="stopSirenSound()"></button>
+        </div>
+
+        <div class="modal-body p-4 text-center">
+          <div class="alert alert-danger border-danger py-2 mb-3">
+            <i class="fa-solid fa-satellite-dish me-2"></i>
+            <strong id="sos-status-text">
+              {% if current_patient and current_patient.caregiver and current_patient.caregiver.user %}
+                SOS alert routing call to registered caregiver {{ current_patient.caregiver.user.name }} ({{ current_patient.caregiver.user.phone }})!
+              {% else %}
+                SOS alert routing call to your registered caregiver!
+              {% endif %}
+            </strong>
+          </div>
+
+          <div class="card p-3 bg-light border-0 rounded-4 text-start mb-4">
+            <span class="text-muted small fw-bold text-uppercase d-block mb-1">📍 Patient Registered Address</span>
+            <h5 class="fw-bold text-dark mb-1" id="sos-recorded-address">
+              {{ current_patient.region ~ ' – Home Location' if current_patient else 'House #14, Zoo Road, Guwahati, Assam' }}
+            </h5>
+            <small class="text-secondary"><i class="fa-solid fa-location-crosshairs text-danger me-1"></i> Regional GPS coordinates broadcasted to emergency responders & registered caregiver.</small>
+          </div>
+
+          {% set default_cg_name = "Sunita Sharma" %}
+          {% set default_cg_phone = "9435011223" %}
+          {% set default_cg_rel = "Daughter & Primary Caregiver" %}
+          {% if current_patient and current_patient.caregiver and current_patient.caregiver.user %}
+            {% set default_cg_name = current_patient.caregiver.user.name or default_cg_name %}
+            {% set default_cg_phone = current_patient.caregiver.user.phone or default_cg_phone %}
+            {% set default_cg_rel = current_patient.caregiver.relationship_to_patient or default_cg_rel %}
+          {% elif current_patient and current_patient.emergency_contact %}
+            {% set default_cg_name = current_patient.emergency_contact %}
+          {% endif %}
+
+          <h5 class="fw-bold mb-3 text-dark">One-Tap Immediate Emergency Speed Dials:</h5>
+          <div class="d-flex flex-column gap-3 mb-3">
+            <!-- 1. Call Registered Caregiver -->
+            <a href="tel:{{ default_cg_phone }}" id="sos-caregiver-call-btn" class="btn btn-lg btn-success py-3 rounded-4 d-flex align-items-center justify-content-between px-4 shadow-sm">
+              <div class="d-flex align-items-center gap-3">
+                <div class="fs-2 text-white"><i class="fa-solid fa-phone-volume"></i></div>
+                <div class="text-start">
+                  <strong class="d-block fs-5 text-white">Call Registered Caregiver</strong>
+                  <small class="text-white opacity-90" id="sos-caregiver-detail">{{ default_cg_name }} ({{ default_cg_rel }}) &bull; {{ default_cg_phone }}</small>
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-right fs-4 text-white"></i>
+            </a>
+
+            <!-- 2. Call 112 National Emergency -->
+            <a href="tel:112" class="btn btn-lg btn-danger py-3 rounded-4 d-flex align-items-center justify-content-between px-4 shadow-sm">
+              <div class="d-flex align-items-center gap-3">
+                <div class="fs-2"><i class="fa-solid fa-truck-medical"></i></div>
+                <div class="text-start">
+                  <strong class="d-block fs-5">Call 112 / 108 Ambulance</strong>
+                  <small class="opacity-75">National 24/7 Emergency Police & Medical Helpline</small>
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-right fs-4"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0 bg-light justify-content-center">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-bold" data-bs-dismiss="modal" onclick="stopSirenSound()">
+            <i class="fa-solid fa-check me-2"></i> I am Safe Now (Dismiss Alert)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Voice Assistant Button & Pill -->
+  <button id="floating-voice-trigger" class="floating-voice-btn" title="Voice Assistant (Click to speak)">
+    <i class="fa-solid fa-microphone"></i>
+  </button>
+  <div id="voice-status-pill" class="voice-status-pill">
+    Listening...
+  </div>
+
+  <!-- Voice Assistant Fallback Modal -->
+  <div class="modal fade" id="voiceFallbackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="fa-solid fa-headset me-2"></i> Voice Assistant Command</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-muted">Type or speak your request. Examples: <em>"Start memory game"</em>, <em>"Show my reminders"</em>, <em>"Open memory vault"</em>, or <em>"Emergency SOS"</em>.</p>
+          <form id="voiceFallbackForm">
+            <div class="input-group mb-3">
+              <input type="text" id="voiceFallbackInput" class="form-control form-control-lg" placeholder="Type command here..." autofocus>
+              <button class="btn btn-primary px-4" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+          </form>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.voiceAssistant.handleVoiceCommand('start memory game')">Start Memory Game</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.voiceAssistant.handleVoiceCommand('show reminders')">Show Reminders</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="triggerEmergencySOS()">Emergency SOS</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.voiceAssistant.handleVoiceCommand('go to dashboard')">Go Home</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reusable Game Result Modal with AI Feedback -->
+  <div class="modal fade" id="gameResultModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-3 rounded-4 shadow-lg border-0">
+        <div class="modal-header border-0 pb-0 justify-content-center">
+          <div class="display-3 text-warning"><i class="fa-solid fa-trophy"></i></div>
+        </div>
+        <div class="modal-body">
+          <h2 class="fw-bold text-success mb-1">Wonderful Job!</h2>
+          <p class="text-muted fs-5" id="modal-game-title">Cognitive Activity</p>
+
+          <div class="row g-2 my-3">
+            <div class="col-4">
+              <div class="p-2 border rounded-3 bg-light">
+                <small class="text-muted d-block">Score</small>
+                <strong class="fs-4 text-primary" id="modal-score-value">85/100</strong>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 border rounded-3 bg-light">
+                <small class="text-muted d-block">Accuracy</small>
+                <strong class="fs-4 text-success" id="modal-accuracy-value">90%</strong>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 border rounded-3 bg-light">
+                <small class="text-muted d-block">Time</small>
+                <strong class="fs-4 text-dark" id="modal-time-value">25s</strong>
+              </div>
+            </div>
+          </div>
+
+          <div id="modal-ai-feedback">
+            <!-- Populated dynamically by games.js -->
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-center gap-2">
+          <button type="button" class="btn btn-elderly btn-outline-secondary" onclick="location.reload()">
+            <i class="fa-solid fa-rotate-right me-1"></i> Play Again
+          </button>
+          <a href="{{ url_for('games.games_hub_page') }}" class="btn btn-elderly btn-primary-mc">
+            <i class="fa-solid fa-arrow-right me-1"></i> More Games
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Translations Dictionary -->
+  <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+  <!-- Web Speech API Assistant -->
+  <script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+  <!-- PWA Offline Sync Engine -->
+  <script src="{{ url_for('static', filename='js/offline_sync.js') }}"></script>
+  <!-- Main Controls -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <!-- Cognitive Games Engine -->
+  <script src="{{ url_for('static', filename='js/games.js') }}"></script>
+  <!-- Dashboard Charts Engine -->
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+  <!-- Emergency SOS & Active Notification Scripts -->
+  <script>
+    let sirenOscillator = null;
+    let sirenInterval = null;
+
+    // Trigger Emergency SOS Function
+    async function triggerEmergencySOS() {
+      // 1. Play siren alert
+      playSirenSound();
+
+      // 2. Announce via speech
+      if (window.voiceAssistant && window.voiceAssistant.speak) {
+        window.voiceAssistant.speak("Emergency SOS activated. Calling emergency contacts and sending your recorded location.");
+      }
+
+      // 3. Show SOS Modal
+      const modalEl = document.getElementById('emergencySosModal');
+      if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      }
+
+      // 4. Send SOS alert to backend
+      try {
+        const resp = await fetch('/api/sos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'House #14, Zoo Road, Guwahati, Assam',
+            note: 'Emergency SOS button pressed by patient on SMRITI platform'
+          })
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const statusText = document.getElementById('sos-status-text');
+          const callBtn = document.getElementById('sos-caregiver-call-btn');
+          const callDetail = document.getElementById('sos-caregiver-detail');
+
+          if (callBtn && data.caregiver_phone) {
+            callBtn.href = data.call_url || ('tel:' + data.caregiver_phone);
+          }
+          if (callDetail && data.caregiver_name && data.caregiver_phone) {
+            callDetail.textContent = `${data.caregiver_name} (${data.caregiver_relationship || 'Registered Caregiver'}) • ${data.caregiver_phone}`;
+          }
+          if (statusText) {
+            statusText.innerHTML = `<i class="fa-solid fa-phone-volume text-danger me-1"></i> SOS Alert dispatched! Direct call ready for registered caregiver <strong>${data.caregiver_name || 'Caregiver'}</strong> (${data.caregiver_phone || ''})`;
+          }
+          if (window.voiceAssistant && window.voiceAssistant.speak && data.caregiver_name) {
+            window.voiceAssistant.speak(`Emergency alert activated. Calling your registered caregiver ${data.caregiver_name}.`);
+          }
+        }
+      } catch (err) {
+        console.warn("SOS network dispatch error:", err);
+      }
+    }
+
+    // Synthesized gentle siren sound (no external audio file required)
+    function playSirenSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = 'sine';
+        let high = false;
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        osc.start();
+
+        sirenInterval = setInterval(() => {
+          high = !high;
+          osc.frequency.setTargetAtTime(high ? 900 : 600, ctx.currentTime, 0.1);
+        }, 350);
+
+        sirenOscillator = { osc, ctx };
+      } catch (e) {
+        console.warn("AudioContext error:", e);
+      }
+    }
+
+    function stopSirenSound() {
+      if (sirenInterval) {
+        clearInterval(sirenInterval);
+        sirenInterval = null;
+      }
+      if (sirenOscillator && sirenOscillator.osc) {
+        try {
+          sirenOscillator.osc.stop();
+        } catch (e) {}
+        sirenOscillator = null;
+      }
+    }
+
+    // Active Medicine Notification Checker Daemon
+    async function checkActiveMedicationReminders() {
+      try {
+        const resp = await fetch('/api/reminders');
+        if (!resp.ok) return;
+        const reminders = await resp.json();
+
+        // Check for pending medication reminders
+        const pendingMeds = reminders.filter(r => r.status === 'pending');
+        if (pendingMeds.length > 0) {
+          const med = pendingMeds[0];
+          // Show active toast
+          showActiveMedicineToast(med);
+        }
+      } catch (e) {
+        // silent fail
+      }
+    }
+
+    function showActiveMedicineToast(med) {
+      const container = document.getElementById('activeNotificationContainer');
+      if (!container || document.getElementById(`toast-med-${med.id}`)) return;
+
+      const toast = document.createElement('div');
+      toast.id = `toast-med-${med.id}`;
+      toast.className = 'active-reminder-toast p-3 shadow-lg mb-2';
+      toast.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="badge bg-danger fs-6"><i class="fa-solid fa-pills me-1"></i> Medication Due</span>
+          <button type="button" class="btn-close" onclick="this.closest('.active-reminder-toast').remove()"></button>
+        </div>
+        <h5 class="fw-bold text-dark mb-1">${med.title}</h5>
+        <p class="text-muted small mb-2"><i class="fa-regular fa-clock me-1"></i> ${med.reminder_time} &bull; ${med.description || 'Take with fresh water'}</p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-success fw-bold flex-grow-1" onclick="markReminderTaken(${med.id}, this)">
+            <i class="fa-solid fa-check me-1"></i> Mark as Taken
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="this.closest('.active-reminder-toast').remove()">
+            Remind in 10m
+          </button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+
+      // Play notification chime and speak gently
+      if (window.voiceAssistant) {
+        if (window.voiceAssistant.playChime) window.voiceAssistant.playChime('prompt');
+        setTimeout(() => {
+          if (window.voiceAssistant.speak) {
+            window.voiceAssistant.speak(`Namaste, reminder for your ${med.title}. Please take it with fresh water.`);
+          }
+        }, 600);
+      }
+    }
+
+    async function markReminderTaken(id, btn) {
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+        const resp = await fetch(`/api/reminders/${id}/toggle`, { method: 'POST' });
+        if (resp.ok) {
+          const toast = document.getElementById(`toast-med-${id}`);
+          if (toast) {
+            toast.innerHTML = '<div class="alert alert-success m-0 p-2 text-center fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Excellent! Medicine recorded as taken.</div>';
+            setTimeout(() => toast.remove(), 2500);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to mark taken:", e);
+      }
+    }
+
+    // Run active reminder check 3 seconds after page loads
+    setTimeout(checkActiveMedicationReminders, 3000);
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

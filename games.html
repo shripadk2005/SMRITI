@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Cognitive Games – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <span class="badge bg-teal text-white fs-6 px-3 py-1 mb-2 rounded-pill" style="background-color: var(--primary-color);">Cognitive Health & Engagement</span>
+    <h1 class="display-5 fw-bold text-dark" data-i18n="games">Cognitive Games & Memory Activities</h1>
+    <p class="fs-5 text-secondary">
+      Engaging, culturally familiar activities designed to keep elderly minds active, confident, and joyful.
+    </p>
+  </div>
+
+  <!-- Featured Personalized Game: Family & Life Recall -->
+  <div class="card p-4 mb-4 rounded-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #fff5f5 0%, #f0fdfa 100%); border-left: 6px solid #e11d48 !important;">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="fs-1 text-danger"><i class="fa-solid fa-people-roof"></i></div>
+        <div>
+          <span class="badge bg-danger mb-1">New &bull; AI Dynamic Personalization</span>
+          <h3 class="fw-bold mb-1 text-dark">Who Is This? (Family & Life Recall)</h3>
+          <p class="mb-0 text-muted">Dynamically adapts questions based on your family photos, favorite serials, and home addresses added in your Memory Vault.</p>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('patient.memory_vault_page') }}" class="btn btn-outline-danger fw-bold rounded-pill px-3">
+          <i class="fa-solid fa-folder-plus me-1"></i> Manage Vault
+        </a>
+        <a href="{{ url_for('games.play_game_page', slug='family-recall') }}" class="btn btn-danger fw-bold rounded-pill px-4 shadow-sm">
+          <i class="fa-solid fa-play me-1"></i> Play Family Recall
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Adaptive Difficulty Recommendation Banner -->
+  {% if ai_recommendation %}
+    <div class="alert alert-success border-success shadow-sm mb-4 rounded-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="fs-1 text-success"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h4 class="fw-bold mb-1">AI Adaptive Engine Recommendation:</h4>
+          <p class="mb-1 text-dark fs-5" data-i18n="ai_adapted_notice">
+            {{ ai_recommendation.message }}
+          </p>
+          <span class="badge bg-primary fs-6 rounded-pill">Recommended Level: {{ ai_recommendation.difficulty }}</span>
+          <span class="text-muted ms-2">{{ ai_recommendation.trend }}</span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Games Catalog Grid -->
+  <div class="row g-4">
+    {% for g in games %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-mindcare h-100 p-4 shadow-sm border rounded-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge bg-light text-teal border border-teal fs-6 rounded-pill" style="color: var(--primary-color);">{{ g.category }}</span>
+            <span class="badge {% if g.difficulty == 'EASY' %}bg-success{% elif g.difficulty == 'MEDIUM' %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill">
+              {{ g.difficulty }}
+            </span>
+          </div>
+
+          <div class="text-center my-3">
+            <div class="fs-1 text-primary mb-2">
+              <i class="fa-solid {{ g.icon }}"></i>
+            </div>
+            <h3 class="fw-bold fs-4">{{ g.name }}</h3>
+          </div>
+
+          <p class="text-muted flex-grow-1 text-center">
+            {{ g.description }}
+          </p>
+
+          <a href="{{ url_for('games.play_game_page', slug=g.slug) }}" class="btn btn-elderly btn-primary-mc w-100 mt-2 rounded-pill">
+            <i class="fa-solid fa-play me-2"></i> <span data-i18n="start_game">Play Game</span>
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

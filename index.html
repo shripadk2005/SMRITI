@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}SMRITI – AI Cognitive Assistance & Dementia Care Platform for North-East India{% endblock %}
+
+{% block content %}
+<!-- Executive Hero Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 50%, #f0f9ff 100%);">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7 text-center text-lg-start">
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 mb-3 rounded-pill bg-white shadow-sm border border-teal">
+          <span class="badge bg-teal" style="background-color: var(--primary-color);">SIH 2026</span>
+          <span class="fw-bold small" style="color: var(--primary-color);">SMRITI • AI Cognitive Healthcare & Dementia Support</span>
+        </div>
+        <h1 class="display-4 fw-bold text-dark mb-3 lh-sm" style="letter-spacing: -0.02em;">
+          Empowering Elderly Minds Through Gentle Technology
+        </h1>
+        <p class="lead text-secondary mb-4 fs-4">
+          Personalized memory vault, adaptive cognitive games, emergency SOS protection, and active medication alerts designed specifically for elderly seniors and dementia patients across Assam and the North-Eastern Region.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start mb-4">
+          {% if session.get('user_id') %}
+            <a href="{{ url_for('patient.dashboard_page') }}" class="btn btn-elderly btn-primary-mc rounded-pill px-4">
+              <i class="fa-solid fa-gauge-high me-2"></i> Go to My Dashboard
+            </a>
+            <a href="{{ url_for('patient.memory_vault_page') }}" class="btn btn-elderly btn-outline-teal rounded-pill px-4" style="border: 2px solid var(--primary-color); color: var(--primary-color);">
+              <i class="fa-solid fa-folder-heart text-danger me-2"></i> Personal Memory Vault
+            </a>
+          {% else %}
+            <a href="{{ url_for('auth.login_page') }}" class="btn btn-elderly btn-primary-mc rounded-pill px-4">
+              <i class="fa-solid fa-brain me-2"></i> Start Cognitive Care
+            </a>
+            <a href="{{ url_for('auth.login_page') }}" class="btn btn-elderly btn-outline-secondary rounded-pill px-4">
+              <i class="fa-solid fa-right-to-bracket me-2"></i> Demo Logins
+            </a>
+          {% endif %}
+          <button type="button" class="btn btn-elderly btn-light border btn-read-aloud rounded-pill" data-read-target=".lead">
+            <i class="fa-solid fa-volume-high text-primary me-2"></i> Listen
+          </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-4 text-muted small justify-content-center justify-content-lg-start flex-wrap">
+          <span><i class="fa-solid fa-shield-heart text-teal me-1"></i> 100% Non-Diagnostic</span>
+          <span><i class="fa-solid fa-folder-heart text-danger me-1"></i> Personal Family Vault</span>
+          <span><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 1-Tap SOS Emergency</span>
+          <span><i class="fa-solid fa-wifi-slash text-warning me-1"></i> Offline PWA Ready</span>
+        </div>
+      </div>
+
+      <!-- Interactive Healthcare Telemetry Preview Card -->
+      <div class="col-lg-5 text-center">
+        <div class="card card-mindcare border-0 shadow-lg p-4 bg-white rounded-4 text-start">
+          <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+              <div class="brand-icon-box" style="width: 48px; height: 48px;">
+                <i class="fa-solid fa-heart-pulse"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0">SMRITI Live Care Preview</h5>
+                <small class="text-muted">Raj Kumar &bull; Assam, NER</small>
+              </div>
+            </div>
+            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fa-solid fa-signal me-1"></i> Active</span>
+          </div>
+
+          <!-- Mini Live Telemetry Cards -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block">Cognitive Score</small>
+                <strong class="fs-4 text-teal" style="color: var(--primary-color);">84/100</strong>
+                <span class="badge bg-success-subtle text-success small d-block mt-1">+4% this week</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block">Memory Vault</small>
+                <strong class="fs-4 text-danger">4 Family Items</strong>
+                <span class="badge bg-primary-subtle text-primary small d-block mt-1">Photos & Serials</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Medicine Callout -->
+          <div class="p-3 mb-3 rounded-3" style="background: #f0fdfa; border: 1px solid #ccfbf1;">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <strong class="text-dark d-block"><i class="fa-solid fa-pills text-danger me-1"></i> Blood Pressure Tablet</strong>
+                <small class="text-muted">Scheduled for 08:30 AM with warm water</small>
+              </div>
+              <span class="badge bg-success">Taken &check;</span>
+            </div>
+          </div>
+
+          <!-- SOS Instant Trigger Demo -->
+          <button type="button" class="btn btn-emergency-sos w-100 justify-content-center py-2" onclick="triggerEmergencySOS()">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Test Emergency SOS Alert</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 Platform Pillars Grid -->
+<section class="py-5" id="features">
+  <div class="container py-3">
+    <div class="text-center mb-5">
+      <span class="badge bg-light text-teal border border-teal px-3 py-2 fs-6 rounded-pill" style="color: var(--primary-color);">Comprehensive Care Pillars</span>
+      <h2 class="display-6 fw-bold mt-2">Engineered for Elderly Dignity, Joy & Safety</h2>
+      <p class="text-muted fs-5">Everything needed to assist seniors with memory challenges and empower their family caregivers.</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- 1. Personal Memory Vault -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-teal mb-3"><i class="fa-solid fa-folder-heart"></i></div>
+          <h4 class="fw-bold fs-5">Personal Memory Vault</h4>
+          <p class="text-muted">Store family photos, names, home addresses, and favorite serials. SMRITI creates games dynamically from your data!</p>
+        </div>
+      </div>
+
+      <!-- 2. Emergency SOS Protection -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-amber mb-3" style="background: #fee2e2; color: #dc2626;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <h4 class="fw-bold fs-5">1-Tap Emergency SOS</h4>
+          <p class="text-muted">Instant loud alert sound, voice announcement, location dispatch, and speed dials for family caregiver & 112 ambulance.</p>
+        </div>
+      </div>
+
+      <!-- 3. Dynamic Cognitive Games -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-sky mb-3"><i class="fa-solid fa-puzzle-piece"></i></div>
+          <h4 class="fw-bold fs-5">8 Cognitive Games</h4>
+          <p class="text-muted">Interactive games for memory, pattern recall, focus, daily routines, familiar pictures, emotions, and family recall.</p>
+        </div>
+      </div>
+
+      <!-- 4. Active Spoken Reminders -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-emerald mb-3"><i class="fa-solid fa-bell"></i></div>
+          <h4 class="fw-bold fs-5">Active Spoken Reminders</h4>
+          <p class="text-muted">Audio chimes and spoken voice notifications for medicine doses, hydration, and doctor checkups with one-click "Mark Taken".</p>
+        </div>
+      </div>
+
+      <!-- 5. Caregiver Telemetry Hub -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-sky mb-3"><i class="fa-solid fa-user-nurse"></i></div>
+          <h4 class="fw-bold fs-5">Caregiver Hub</h4>
+          <p class="text-muted">Real-time Chart.js analytics tracking score trends, exercise frequency, adherence, and instant emergency alerts.</p>
+        </div>
+      </div>
+
+      <!-- 6. AI Adaptive Personalization -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-teal mb-3"><i class="fa-solid fa-brain"></i></div>
+          <h4 class="fw-bold fs-5">AI Adaptive Engine</h4>
+          <p class="text-muted">Built with scikit-learn to tailor game challenges (EASY, MEDIUM, HARD) to each senior's individual pace without stress.</p>
+        </div>
+      </div>
+
+      <!-- 7. Multilingual Voice Assistant -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-amber mb-3"><i class="fa-solid fa-language"></i></div>
+          <h4 class="fw-bold fs-5">8 Regional Languages</h4>
+          <p class="text-muted">Instant translation across Assamese, Bengali, Manipuri, Khasi, Mizo, Nagamese, Hindi, and English.</p>
+        </div>
+      </div>
+
+      <!-- 8. Offline PWA Resiliency -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card card-mindcare h-100 p-4 text-center">
+          <div class="icon-bubble icon-bubble-emerald mb-3"><i class="fa-solid fa-wifi-slash"></i></div>
+          <h4 class="fw-bold fs-5">Offline PWA</h4>
+          <p class="text-muted">Works seamlessly in remote hilly regions without internet. Automatically syncs queued records upon reconnection.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Familiar North-Eastern Heritage Section -->
+<section class="py-5 bg-light">
+  <div class="container py-3">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="badge bg-teal text-white mb-2" style="background-color: var(--primary-color);">North-Eastern Cultural Grounding</span>
+        <h2 class="display-6 fw-bold">Grounding Cognitive Health in Local Heritage</h2>
+        <p class="fs-5 text-secondary">
+          Memory recall is dramatically strengthened when sensory cues connect with familiar life experiences. SMRITI weaves authentic elements from across all 8 North-Eastern states:
+        </p>
+        <ul class="list-unstyled fs-5">
+          <li class="mb-2"><i class="fa-solid fa-check-circle text-teal me-2" style="color: var(--primary-color);"></i> <strong>Traditional Foods:</strong> Pitha, Khar, Bamboo Shoot delicacies, Thukpa, Momos.</li>
+          <li class="mb-2"><i class="fa-solid fa-check-circle text-teal me-2" style="color: var(--primary-color);"></i> <strong>Festivals & Music:</strong> Rongali Bihu, Hornbill, Chapchar Kut, Sangai, Losar.</li>
+          <li class="mb-2"><i class="fa-solid fa-check-circle text-teal me-2" style="color: var(--primary-color);"></i> <strong>Cultural Symbols:</strong> Japi, Xorai, Bell-metal vessels, Assam Handloom, Bamboo Flutes.</li>
+        </ul>
+        <a href="{{ url_for('patient.familiar_memories_page') }}" class="btn btn-elderly btn-primary-mc mt-2 rounded-pill">
+          <i class="fa-solid fa-compass me-2"></i> Explore Regional Heritage
+        </a>
+      </div>
+      <div class="col-lg-6">
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="card p-3 text-center border-0 shadow-sm bg-white rounded-4">
+              <div class="display-4 text-teal mb-2" style="color: var(--primary-color);"><i class="fa-solid fa-mug-hot"></i></div>
+              <h5 class="fw-bold">Assam Tea Gardens</h5>
+              <small class="text-muted">Aromatic morning memories</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card p-3 text-center border-0 shadow-sm bg-white rounded-4">
+              <div class="display-4 text-warning mb-2"><i class="fa-solid fa-umbrella"></i></div>
+              <h5 class="fw-bold">Japi Bamboo Hat</h5>
+              <small class="text-muted">Warmth and cultural respect</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card p-3 text-center border-0 shadow-sm bg-white rounded-4">
+              <div class="display-4 text-danger mb-2"><i class="fa-solid fa-drum"></i></div>
+              <h5 class="fw-bold">Bihu Dhol</h5>
+              <small class="text-muted">Joyful spring celebration</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card p-3 text-center border-0 shadow-sm bg-white rounded-4">
+              <div class="display-4 text-primary mb-2"><i class="fa-solid fa-bridge-water"></i></div>
+              <h5 class="fw-bold">Living Root Bridges</h5>
+              <small class="text-muted">Timeless Meghalaya wonders</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5 text-center text-white" style="background: linear-gradient(135deg, #0f766e 0%, #0284c7 100%);">
+  <div class="container py-4">
+    <h2 class="display-5 fw-bold mb-3">Ready to Experience SMRITI?</h2>
+    <p class="lead mb-4 fs-4 opacity-90">Explore cognitive games, build your personal memory vault, or inspect the caregiver telemetry dashboard.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+      <a href="{{ url_for('auth.login_page') }}" class="btn btn-elderly btn-light text-dark rounded-pill px-4">
+        <i class="fa-solid fa-right-to-bracket me-2"></i> Try Demo Accounts
+      </a>
+      <a href="{{ url_for('auth.register_page') }}" class="btn btn-elderly btn-outline-light rounded-pill px-4">
+        <i class="fa-solid fa-user-plus me-2"></i> Register New Patient
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

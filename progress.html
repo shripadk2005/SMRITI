@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}My Progress – SMRITI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <h1 class="display-5 fw-bold mb-1" data-i18n="progress">📊 My Cognitive Activity Progress</h1>
+      <p class="fs-5 text-muted mb-0">Review your daily engagement, exercise consistency, and cognitive domain scores.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-elderly btn-light border btn-read-aloud" data-read-target=".container p">
+        <i class="fa-solid fa-volume-high text-teal me-2"></i> Read Page
+      </button>
+      <a href="{{ url_for('games.games_hub_page') }}" class="btn btn-elderly btn-primary-mc">
+        <i class="fa-solid fa-gamepad me-2"></i> Play Today's Game
+      </a>
+    </div>
+  </div>
+
+  <!-- Non-Diagnostic Supportive Note -->
+  <div class="alert alert-info border-0 shadow-sm mb-4" style="background: rgba(2, 132, 199, 0.08); border-left: 4px solid var(--sky-blue) !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fa-solid fa-heart-pulse fs-3 text-info"></i>
+      <div>
+        <strong>Activity Engagement Notice:</strong>
+        <p class="mb-0 small">
+          These metrics show continuous activity and engagement performance over time. SMRITI supports cognitive wellness and does not calculate clinical dementia stages.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Score Trend Chart -->
+  <div class="card card-mindcare p-4 mb-4 shadow-sm">
+    <h2 class="fw-bold fs-4 mb-3">
+      <i class="fa-solid fa-chart-line text-success me-2"></i>
+      Weekly Activity Score Trend (7 Days)
+    </h2>
+    <div style="height: 320px;">
+      <canvas id="patientProgressChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Cognitive Domains Breakdown Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-success border-4">
+        <div class="fs-1 text-success mb-1"><i class="fa-solid fa-clone"></i></div>
+        <h4 class="fw-bold fs-5">Memory Cards</h4>
+        <div class="display-6 fw-bold text-success my-2">84%</div>
+        <small class="text-muted">Symbol association & recall</small>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-primary border-4">
+        <div class="fs-1 text-primary mb-1"><i class="fa-solid fa-bullseye"></i></div>
+        <h4 class="fw-bold fs-5">Attention & Focus</h4>
+        <div class="display-6 fw-bold text-primary my-2">88%</div>
+        <small class="text-muted">Target spotting accuracy</small>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-warning border-4">
+        <div class="fs-1 text-warning mb-1"><i class="fa-solid fa-shapes"></i></div>
+        <h4 class="fw-bold fs-5">Pattern Sequences</h4>
+        <div class="display-6 fw-bold text-warning my-2">80%</div>
+        <small class="text-muted">Logical shape progression</small>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-mindcare p-3 text-center h-100 shadow-sm border-top border-info border-4">
+        <div class="fs-1 text-info mb-1"><i class="fa-solid fa-calendar-check"></i></div>
+        <h4 class="fw-bold fs-5">Routine Recall</h4>
+        <div class="display-6 fw-bold text-info my-2">92%</div>
+        <small class="text-muted">Daily routine order</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encouraging Milestone Badges -->
+  <div class="card card-mindcare p-4 shadow-sm">
+    <h2 class="fw-bold fs-4 mb-3">
+      <i class="fa-solid fa-award text-warning me-2"></i>
+      Encouraging Activity Badges
+    </h2>
+
+    <div class="row g-3 text-center">
+      <div class="col-md-4">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <div class="fs-1 text-warning mb-2">⭐</div>
+          <h5 class="fw-bold mb-1">Consistency Star</h5>
+          <p class="text-muted small mb-0">Completed cognitive activities 5 days in a row.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <div class="fs-1 text-info mb-2">💧</div>
+          <h5 class="fw-bold mb-1">Hydration Champion</h5>
+          <p class="text-muted small mb-0">Maintained steady water intake throughout the week.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <div class="fs-1 text-success mb-2">🌱</div>
+          <h5 class="fw-bold mb-1">Morning Master</h5>
+          <p class="text-muted small mb-0">Morning routine recall completed with high precision.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
